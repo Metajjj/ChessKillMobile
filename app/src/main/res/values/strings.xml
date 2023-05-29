@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">ChessKill\nMobile</string>
+
+    <!-- arrows dont show up.. replacing with unicode doesnt work for diagonals -->
+    <string name="LongInfoRules"><![CDATA[
+        🠕 Up_Arrow(Forward) | 🠗 Down_Arrow(Backwards) | 🠔 Left_Arrow(Left) | ➞ Right_Arrow(Right) | ⬉ UpLeft_Arrow(FL) | ⬈ UpRight_Arrow(FR) | ⬋ DownLeft_Arrow(DL) | ⬊ DownRight_Arrow(DR) \n\n
+    ==========\n
+        MOVEMENT\n\n[Chess Piece | Movement | Arrow Example | Tips]\n\nPawn | Movement - Forward & Kill - Diagonal | Movement - Forward & Kill - FL or FR | From its starting position, it can move forward two squares; otherwise it is limited to 1 square per movement\n\nRook | Its movement is based on the plus symbol (+), can move as long as there is nothing in the way | Movement&Kill - Right or Left or Forward or Down | It is prone to obstructions by its allies\n\nKnight | Moves in an L shape in any direction, except diagonals | Movement&Kill- ForwardForwardLeft or ForwardForwardRight or RightRightForward or DownDownLeft | It must always move two tiles before moving to an adjacent left or right tile\n\nBishop | Moves in a cross pattern (X), can move as far as there is nothing in the way | Movement&Kill - FL or FR or BL or BR | It can be treated the same as a rook, except it moves diagonally\n\nQueen | Rook&Bishop | Movement&Kill - Rook&Bishop | The Queen is a combination of a Rook and Bishops capabilities\n\nKing | Can move one tile in any direction | Right or Left or Forward or Down | It is common to keep the king nearby another ally to use as a shield, losing these piece means losing the game\n\n\nWIN CONDITIONS\n\n[Name | How to achieve]\n\nCheckmate | Having the enemy king unable to move while being checked/captured next turn\n\nStalemate | Having the inability to capture the enemy king, yet able to make sure the enemy cannot make any legal moves\n\n!!! This game of chess will work with the condition of the king being captured rather than being unable to move !!!\n!!! Additionally in order to avoid long games, it is considered a stalemate after 200 turns without a single capture !!!]]></string>
+
+    <string name="RatioRecord">WLR</string>
+    <string name="AIBrain">AIbrain</string>
+
+    <string name="Pawn">Pawn</string>
+    <string name="Rook">Rook</string>
+    <string name="Knight">Knight</string>
+    <string name="Bishop">Bishop</string>
+    <string name="Queen">Queen</string>
+    <string name="King">King</string>
+</resources>
