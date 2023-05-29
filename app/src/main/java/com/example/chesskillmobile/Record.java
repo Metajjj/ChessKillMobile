@@ -1,6 +1,7 @@
 package com.example.chesskillmobile;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -94,8 +95,9 @@ public class Record  extends AppCompatActivity {
             });
 
         }).start();
+
     }
 
     @Override
-    public void onBackPressed() { findViewById(R.id.InfoTitle).performClick(); }
+    public void onBackPressed() { startActivity(new Intent(context, Main.class).setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)); }
 }

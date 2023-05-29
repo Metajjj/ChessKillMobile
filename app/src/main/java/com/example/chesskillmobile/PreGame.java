@@ -46,8 +46,6 @@ public class PreGame extends DialogFragment {
         getActivity().findViewById(R.id.PregameWB).setOnClickListener((v)->{
             if(!(WBsafe && BBsafe)){ Toast.makeText(context, "Hex colours unsafe!", Toast.LENGTH_SHORT).show(); return;}
 
-            /*new Game().PlStats = new Object[]{((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText() +"" ,false};
-            new Game().AiStats = new Object[]{((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText() +"",false};*/
             try {
                 FileWriter fw = new FileWriter(new File(getActivity().getFilesDir(),"tmp") );
                 fw.write(((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText()+"\n"+"false"+"\n"+((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText()+"\n"+"false"); fw.flush(); fw.close();
@@ -59,8 +57,6 @@ public class PreGame extends DialogFragment {
         getActivity().findViewById(R.id.PregameBB).setOnClickListener((v)->{
             if(!(WBsafe && BBsafe)){ Toast.makeText(context, "Hex colours unsafe!", Toast.LENGTH_SHORT).show(); return;}
 
-            /*new Game().PlStats = new Object[]{((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText() +"",false};
-            new Game().AiStats = new Object[]{((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText() +"",false};*/
             try {
                 FileWriter fw = new FileWriter(new File(getActivity().getFilesDir(),"tmp") );
                 fw.write(((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText()+"\n"+"false"+"\n"+((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText()+"\n"+"false"); fw.flush(); fw.close();
@@ -131,17 +127,30 @@ public class PreGame extends DialogFragment {
 
     }
 
-
     private Boolean WBsafe=true, BBsafe=true;
 
     private void CloseFrag(){
         //
+        Bundle b = new Bundle(); b.putString("ReqKey","Results");
+        getParentFragmentManager().setFragmentResult("ReqKey",b);
         getParentFragmentManager().beginTransaction().remove(this).commit();
         //Put FL into index 0 so its overwritten and hidden
         FrameLayout FL = getActivity().findViewById(R.id.GameFragHolder);
         ((ViewGroup)FL.getParent()).removeView(FL); ((ViewGroup)getActivity().findViewById(R.id.GameBg)).addView(FL,0);
 
-        new Game().TeamSelected(); //err accessing file
+        OCR.TeamChosen();
+        //new Game().TeamChosen(); //err accessing file
+    }
+
+    public interface OnCallbackReceived{
+        void TeamChosen();
+    }
+    OnCallbackReceived OCR; //Has to be casted in onAttach
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try{ OCR = (OnCallbackReceived) context; //Moves interface to activity context
+        }catch (Exception e){ System.err.println(e); }
     }
 }
 

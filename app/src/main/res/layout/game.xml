@@ -39,4 +39,158 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TableLayout
+        android:id="@+id/GameTable"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:stretchColumns="*"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="20dp" android:paddingRight="20dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/GameTitle">
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="90px">
+
+            <TextView
+                android:layout_width="90px"
+                android:layout_height="match_parent"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="15dp" />
+
+            <TextView
+                android:layout_width="90px"
+                android:layout_height="match_parent"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+            <TextView
+                android:layout_width="90px"
+                android:layout_height="match_parent"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+            <TextView
+                android:layout_width="90px"
+                android:layout_height="match_parent"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+            <TextView
+                android:layout_width="90px"
+                android:layout_height="match_parent"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+            <TextView
+                android:layout_width="90px"
+                android:layout_height="match_parent"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+            <TextView
+                android:layout_width="90px"
+                android:layout_height="match_parent"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+            <TextView
+                android:layout_width="90px"
+                android:layout_height="match_parent"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="90px">
+
+            <TextView
+                android:layout_width="70px"
+                android:layout_height="wrap_content"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="90px">
+
+            <TextView
+                android:layout_width="70px"
+                android:layout_height="wrap_content"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="90px">
+
+            <TextView
+                android:layout_width="70px"
+                android:layout_height="wrap_content"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="90px">
+
+            <TextView
+                android:layout_width="70px"
+                android:layout_height="wrap_content"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="90px">
+
+            <TextView
+                android:layout_width="70px"
+                android:layout_height="wrap_content"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="90px">
+
+            <TextView
+                android:layout_width="70px"
+                android:layout_height="wrap_content"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="90px">
+
+            <TextView
+                android:layout_width="70px"
+                android:layout_height="wrap_content"
+                android:text="AABB"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+        </TableRow>
+    </TableLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
