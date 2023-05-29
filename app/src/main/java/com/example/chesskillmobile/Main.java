@@ -60,7 +60,7 @@ public class Main extends AppCompatActivity {
         System.out.println( getFilesDir() );
 
         for(File f : getFilesDir().listFiles()){
-            //System.out.println(f.getName()+"=="+Ai.getName()+"? "+f.getName().equals(Ai.getName())+" | "+f.getName()+"=="+Ratio.getName()+"? "+f.getName().equals(Ratio.getName()));
+
             if (! ( f.getName().equals(Ai.getName()) || f.getName().equals(Ratio.getName()) ) ){ f.delete(); System.out.println(f.getName()+" destroyed..");} }
 
         //Files dont exist on app restart?..
@@ -68,7 +68,7 @@ public class Main extends AppCompatActivity {
         if(! Ai.exists()) {
             try {
                 FileWriter FW = new FileWriter(Ai);
-                FW.write("a"); FW.flush(); FW.close();
+                FW.write(""); FW.flush(); FW.close();
             } catch (Exception e) { Toast.makeText(context,"Err making brain",Toast.LENGTH_SHORT).show(); }
         } if(! Ratio.exists()) {
             try {

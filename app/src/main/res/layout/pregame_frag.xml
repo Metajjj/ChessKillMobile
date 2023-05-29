@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" android:id="@+id/PregameBg"
+    android:background="#111111">
+
+    <TextView
+        android:id="@+id/PregameTitle"
+
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="80dp"
+        android:gravity="center"
+        android:maxLines="2"
+        android:shadowColor="#005555"
+        android:shadowDx="10"
+        android:shadowDy="10"
+        android:shadowRadius="100"
+        android:text="@string/app_name"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:textStyle="bold"
+        android:background="#555555"
+        android:id="@+id/PregameWB"
+        android:layout_width="0dp"
+        android:layout_height="135dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="12dp"
+        android:gravity="center"
+        android:text="White"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="30dp"
+        app:layout_constraintEnd_toStartOf="@+id/PregameBB"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/PregameTitle" />
+
+    <TextView
+        android:id="@+id/PregameBB"
+        android:layout_width="151dp"
+
+        android:layout_height="136dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="100dp"
+
+        android:layout_marginEnd="50dp"
+        android:background="#555555"
+        android:gravity="center"
+        android:text="Black"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="30dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintStart_toEndOf="@+id/PregameWB"
+        app:layout_constraintTop_toBottomOf="@+id/PregameTitle" />
+
+    <EditText
+        android:id="@+id/PregameWBcol"
+        android:layout_width="140dp"
+        android:layout_height="124dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="50dp"
+        android:background="#555555"
+        android:digits="0123456789ABCDEF#"
+        android:gravity="center"
+        android:maxLength="7"
+        android:maxLines="1"
+        android:text="#ffffff"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="25dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/PregameCCinfo" />
+
+    <TextView
+        android:id="@+id/PregameCCinfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:background="#666"
+        android:padding="5dp"
+        android:gravity="center"
+        android:text="Edit the hex codes to change col!"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.627"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/PregameWB" />
+
+    <EditText
+        android:id="@+id/PregameBBcol"
+        android:layout_width="140dp"
+        android:layout_height="124dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginTop="50dp"
+        android:background="#555555"
+        android:gravity="center"
+        android:text="#ffffff"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/PregameCCinfo" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

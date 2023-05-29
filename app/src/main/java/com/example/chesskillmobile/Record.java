@@ -72,28 +72,14 @@ public class Record  extends AppCompatActivity {
             }
             ((TextView) findViewById(R.id.RecordWLR)).setText(s);
 
-            try {
-                for(File f : getFilesDir().listFiles()){ System.out.println(f.getName());}
-
-                BufferedReader bfr = new BufferedReader(new FileReader(new File(getFilesDir(), getString(R.string.AIBrain))));
-
-                int i=1;
-                while(bfr.readLine() != null){ i++; if(i==15){break;} }
-
-                s = "Num of games Ai learnt: " + i;
-                bfr.close();
-            } catch (Exception e) {
-                s = "Err reading file!"; System.err.println("Err: "+e);
-            }
-            String S = s;
-            runOnUiThread(() -> { ((TextView) findViewById(R.id.RecordNumGamesAiLearned)).setText(S); });
-
             findViewById(R.id.RecordResetWLR).setOnClickListener((v) -> {
                 try {
                     FileWriter FW = new FileWriter(new File(getFilesDir(), getString(R.string.RatioRecord)));
                     FW.write("Human: 0 | AI: 0 | Tie: 0"); FW.flush(); FW.close();
+                    Toast.makeText(context,"WLR reset!",Toast.LENGTH_SHORT).show();
+                    Thread.currentThread().start();
                 } catch (Exception e) {
-                    Toast.makeText(context, "Err making ratio", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Err resetting ratio", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -101,8 +87,9 @@ public class Record  extends AppCompatActivity {
                 try {
                     FileWriter FW = new FileWriter(new File(getFilesDir(), getString(R.string.AIBrain)));
                     FW.write(""); FW.flush(); FW.close();
+                    Toast.makeText(context,"Brain reset!",Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    Toast.makeText(context, "Err making brain", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Err resetting brain", Toast.LENGTH_SHORT).show();
                 }
             });
 
