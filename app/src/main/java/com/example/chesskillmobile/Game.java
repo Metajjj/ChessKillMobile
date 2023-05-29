@@ -10,6 +10,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.Objects;
 
 public class Game  extends AppCompatActivity {
@@ -60,6 +63,12 @@ public class Game  extends AppCompatActivity {
     }
 
     protected void TeamSelected(){
+        try {
+            BufferedReader bfr = new BufferedReader(new FileReader(new File(context.getFilesDir(), "tmp")));
+            PlStats = new Object[]{bfr.readLine(),Boolean.parseBoolean(bfr.readLine())};
+            AiStats = new Object[]{bfr.readLine(),Boolean.parseBoolean(bfr.readLine())};
+            bfr.close();
+        } catch (Exception e){System.out.println("ERR: "+e); return;}
 
         for(Object o : PlStats)
             System.out.println("Pl: "+o.toString());

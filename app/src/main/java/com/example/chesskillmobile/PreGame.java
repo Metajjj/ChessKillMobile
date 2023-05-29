@@ -141,7 +141,7 @@ public class PreGame extends DialogFragment {
         FrameLayout FL = getActivity().findViewById(R.id.GameFragHolder);
         ((ViewGroup)FL.getParent()).removeView(FL); ((ViewGroup)getActivity().findViewById(R.id.GameBg)).addView(FL,0);
 
-        new Game().TeamSelected();
+        new Game().TeamSelected(); //err accessing file
     }
 }
 
