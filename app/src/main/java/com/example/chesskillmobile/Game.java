@@ -59,8 +59,6 @@ public class Game  extends AppCompatActivity {
         //todo Frag to cover setting up.. and grab team col pick -- make frag disappear based on time takes to make board?
     }
 
-    //
-
     protected void TeamSelected(){
 
         for(Object o : PlStats)
