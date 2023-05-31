@@ -246,7 +246,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
             try {
 
-                if (! TileOne[2].equals(TileTwo[2]) && (boolean) this.getClass().getDeclaredMethod("Pawn", Object[].class, Object[].class).invoke(this, TileOne, TileTwo)) {
+                if (! TileOne[2].equals(TileTwo[2]) && (boolean) this.getClass().getDeclaredMethod(TileOne[1]+"", Object[].class, Object[].class).invoke(this, TileOne, TileTwo)) {
                     MovePiece(TileOne,TileTwo);
 
                     Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nAllowed move!",Toast.LENGTH_SHORT).show();
@@ -396,7 +396,28 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     }
 
     private void MovePiece(Object[] T1, Object[] T2){
-        
+        //T1[0] ID
+        TextView tv1=new TextView(this),tv2 =new TextView(this);
+        ConcurrentHashMap<String,String> CHM = new ConcurrentHashMap<>();
+
+        for(int i=0 ;i < ((TableLayout)findViewById(R.id.GameTable)).getChildCount(); i++) {
+            TableRow tr = (TableRow) ((TableLayout) findViewById(R.id.GameTable)).getChildAt(i);
+            for (int j = 0; j < tr.getChildCount(); j++) {
+                TextView tv = (TextView) tr.getChildAt(j);
+
+                if ( ((ConcurrentHashMap<String,String>)tv.getTag()).get("ID").equals(T1[0]) ){ tv1 = tv; }
+                else if ( ((ConcurrentHashMap<String,String>)tv.getTag()).get("ID").equals(T2[0]) ){ tv2=tv; }
+            }
+        }
+
+        if (tv2.getCurrentTextColor() == Color.parseColor("#888888")) { System.out.println("GREY t2"); /*TurnsTillStalemate=0*/ }
+
+        //CHM = (ConcurrentHashMap<String, String>) tv1.getTag();
+        ((ConcurrentHashMap<String, String>) tv2.getTag()).put("Piece", ((ConcurrentHashMap<String, String>) tv1.getTag()).get("Piece") );
+        ((ConcurrentHashMap<String, String>) tv1.getTag()).put("Piece","");
+
+        //Check if king dead..
+        String s = T2[1].equals("King") ? "T" + (T2[2].equals(Color.parseColor(PlStats[2]+""))) : "F" ;
 
     }
 
