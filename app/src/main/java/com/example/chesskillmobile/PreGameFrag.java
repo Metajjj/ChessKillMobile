@@ -19,10 +19,8 @@ import androidx.fragment.app.DialogFragment;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.text.MessageFormat;
 
-public class PreGame extends DialogFragment {
+public class PreGameFrag extends DialogFragment {
 
     private Context context;
 
@@ -46,10 +44,16 @@ public class PreGame extends DialogFragment {
         getActivity().findViewById(R.id.PregameWB).setOnClickListener((v)->{
             if(!(WBsafe && BBsafe)){ Toast.makeText(context, "Hex colours unsafe!", Toast.LENGTH_SHORT).show(); return;}
 
-            try {
+            //todo tmp => array
+
+            Pstats= new Object[]{((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText(),false};
+            Astats= new Object[]{((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText(),false};
+
+            /*try {
                 FileWriter fw = new FileWriter(new File(getActivity().getFilesDir(),"tmp") );
                 fw.write(((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText()+"\n"+"false"+"\n"+((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText()+"\n"+"false"); fw.flush(); fw.close();
             } catch (Exception e) { Toast.makeText(context,"Srs err occured!",Toast.LENGTH_SHORT).show(); return; }
+            */
 
             CloseFrag();
         });
@@ -57,10 +61,15 @@ public class PreGame extends DialogFragment {
         getActivity().findViewById(R.id.PregameBB).setOnClickListener((v)->{
             if(!(WBsafe && BBsafe)){ Toast.makeText(context, "Hex colours unsafe!", Toast.LENGTH_SHORT).show(); return;}
 
+            Astats= new Object[]{((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText(),false};
+            Pstats= new Object[]{((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText(),false};
+
+            /*
             try {
                 FileWriter fw = new FileWriter(new File(getActivity().getFilesDir(),"tmp") );
                 fw.write(((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText()+"\n"+"false"+"\n"+((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText()+"\n"+"false"); fw.flush(); fw.close();
             } catch (Exception e) { Toast.makeText(context,"Srs err occured!",Toast.LENGTH_SHORT).show(); return; }
+             */
 
             CloseFrag();
         });
@@ -125,6 +134,12 @@ public class PreGame extends DialogFragment {
             }
         });
 
+        ((TextView)getActivity().findViewById(R.id.PregameWB)).setTextColor( Color.parseColor(
+            ((EditText)getActivity().findViewById(R.id.PregameWBcol)).getText() +""
+        ));
+        ((TextView)getActivity().findViewById(R.id.PregameBB)).setTextColor( Color.parseColor(
+                ((EditText)getActivity().findViewById(R.id.PregameBBcol)).getText() +""
+        ));
     }
 
     private Boolean WBsafe=true, BBsafe=true;
@@ -138,13 +153,18 @@ public class PreGame extends DialogFragment {
         FrameLayout FL = getActivity().findViewById(R.id.GameFragHolder);
         ((ViewGroup)FL.getParent()).removeView(FL); ((ViewGroup)getActivity().findViewById(R.id.GameBg)).addView(FL,0);
 
-        OCR.TeamChosen();
+        String s = ((EditText)getActivity().findViewById(R.id.PregameWBcol)).getText()+"";
+
+        OCR.TeamChosen( Astats, Pstats, s );
         //new Game().TeamChosen(); //err accessing file
     }
 
+    private Object[] Astats,Pstats;
+
     public interface OnCallbackReceived{
-        void TeamChosen();
+        void TeamChosen(Object[] a,Object[] b, String s);  //Sending back the TxtCol of white to determine who plays first
     }
+
     OnCallbackReceived OCR; //Has to be casted in onAttach
     @Override
     public void onAttach(@NonNull Context context) {

@@ -2,6 +2,7 @@ package com.example.chesskillmobile;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.Gravity;
@@ -14,11 +15,8 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentResultListener;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 
-public class Game  extends AppCompatActivity implements PreGame.OnCallbackReceived {
+public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackReceived {
     //Implement to send data from Frag to Activity
 
     private ActivityResultLauncher<String> ARL;
@@ -75,21 +73,27 @@ public class Game  extends AppCompatActivity implements PreGame.OnCallbackReceiv
 
         th.start();
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.GameFragHolder, PreGame.class, null).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.GameFragHolder, PreGameFrag.class, null).commit();
         findViewById(R.id.GameFragHolder).bringToFront();
         //todo Frag to cover setting up.. and grab team col pick -- make frag disappear based on time takes to make board?
     }
 
     //To run when frag closes.. required via implementation
     @Override
-    public void TeamChosen() {
-        //System.out.println("TC");
+    public void TeamChosen(Object[] Astats, Object[] Pstats, String s) {
         //Play with data from Frag
+        AiStats=Astats; PlStats=Pstats;
+
+        PlyrTurn = (PlStats[0].toString().equals(s)); //WORKS
+
         TeamSelected();
     }
 
+    private void IsMainThread(){ System.out.println( Thread.currentThread() == Looper.getMainLooper().getThread() ); }
+
     protected void TeamSelected() {
         //System.out.println(Thread.currentThread() == Looper.getMainLooper().getThread()); //is MainThread
+        /*
         try {
 
             BufferedReader bfr = new BufferedReader(new FileReader(new File(getFilesDir(), "tmp")));
@@ -101,7 +105,7 @@ public class Game  extends AppCompatActivity implements PreGame.OnCallbackReceiv
             System.out.println("ERR: " + e);
             return;
         }
-
+        */
         //for (Object o : PlStats) {System.out.println("Pl: " + o.toString());} for (Object o : AiStats){ System.out.println("Ai: " + o.toString());}
 
         //Add pieces..
@@ -113,17 +117,20 @@ public class Game  extends AppCompatActivity implements PreGame.OnCallbackReceiv
 
     private TextView SetupTxtVw(String ID,int P){
         TextView tv = new TextView(this);
-        tv.setTag(ID); tv.setLayoutParams(new TableRow.LayoutParams((int) (P*0.1), ViewGroup.LayoutParams.MATCH_PARENT));
+        tv.setTag('I'+'D',ID); tv.setLayoutParams(new TableRow.LayoutParams((int) (P*0.1), ViewGroup.LayoutParams.MATCH_PARENT));
         tv.setMinimumWidth((int) (P*0.1)); tv.setMinimumHeight((int) (P*0.1));
         tv.setTextSize( 10 * getResources().getDisplayMetrics().density ); //10 min..
         tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER); tv.setGravity(Gravity.CENTER);
+
+        tv.setTypeface(null, Typeface.BOLD);
+
         //todo some kind of auto_wrap basing it on txt size..
 
         return tv;
     }
 
     private void SetupBoard(){
-        System.out.println("Setting board..");
+        //System.out.println("Setting board..");
         int P = Math.min(getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().heightPixels);
                     //math.min returns smallest number
 
@@ -154,8 +161,79 @@ public class Game  extends AppCompatActivity implements PreGame.OnCallbackReceiv
     }
 
     private void SetupPieces(){
-        System.out.println("S P..");
+        //System.out.println("S P..");
+        //IsMainThread(); //isnt main thread
 
         String[] LastRowPieces = new String[]{getResources().getString(R.string.Rook),getResources().getString(R.string.Knight),getResources().getString(R.string.Bishop),getResources().getString(R.string.King),getResources().getString(R.string.Queen),getResources().getString(R.string.Bishop),getResources().getString(R.string.Knight),getResources().getString(R.string.Rook)};
+
+        for(int i=0 ;i < ((TableLayout)findViewById(R.id.GameTable)).getChildCount(); i++){
+            TableRow tr = (TableRow) ((TableLayout)findViewById(R.id.GameTable)).getChildAt(i);
+            for (int j=0 ;j < tr.getChildCount();j++){
+                TextView tv = (TextView) tr.getChildAt(j);
+                //Tag: A1 || G3 ..
+                //String L = tag.substring(0,1), N = tag.substring(1);
+                switch (tv.getTag('I'+'D').toString().substring(0,1)){
+                    case ("B"): case ("G"):
+                        runOnUiThread(()->{
+                            tv.setText(getResources().getString(R.string.Pawn));
+                            tv.setTag('P'+'i'+'e'+'c'+'e',getResources().getString(R.string.Pawn));
+                        });
+                        break;
+                    case ("A"): case("H"):
+                        runOnUiThread(()-> {
+                            tv.setText(
+                                LastRowPieces[Integer.parseInt(tv.getTag().toString().substring(1)) - 1]
+                            );
+                            tv.setTag('P'+'i'+'e'+'c'+'e',LastRowPieces[Integer.parseInt(tv.getTag().toString().substring(1)) - 1]);
+                        });
+                        break;
+                }
+            }
+        }
+
+        ApplyTeamCols();
     }
+
+    private void ApplyTeamCols(){
+        for(int i=0 ;i < ((TableLayout)findViewById(R.id.GameTable)).getChildCount(); i++) {
+            TableRow tr = (TableRow) ((TableLayout) findViewById(R.id.GameTable)).getChildAt(i);
+            for (int j = 0; j < tr.getChildCount(); j++) {
+                TextView tv = (TextView) tr.getChildAt(j); String tag = tv.getTag().toString();
+                switch (tag.substring(0,1)){
+                    case "A": case "B":
+                        //AI
+                        tv.setTextColor(Color.parseColor(AiStats[0].toString()));
+                        break;
+                    case "H": case "G":
+                        //Pl
+                        tv.setTextColor(Color.parseColor(PlStats[0].toString()));
+                        break;
+                }
+            }
+        }
+
+        //System.out.println(( PlyrTurn ? "Ply 1st" : "Ai 1st" )); //works
+    }
+
+    Object[] TileOne = null; // {Tag, PieceName, Col}
+    //Handle moving pieces and stuff (only player can click button)
+    private void TileSelected(View v){
+        TextView tv = (TextView) v;
+
+        //Make selected T1 lose alpha??
+
+        if(TileOne != null){
+            //Deal wiht tile2
+            Object[] TileTwo = new Object[]{};
+
+            TileOne=null;return;
+        } else if(tv.getCurrentTextColor() == Color.parseColor(PlStats[0].toString())
+                ||
+                 tv.getCurrentTextColor() == Color.parseColor(PlStats[0].toString()) ){
+            //Is player's own piece
+        }
+
+    }
+
+    private boolean PlyrTurn=true;
 }
