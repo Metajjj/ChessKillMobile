@@ -46,8 +46,8 @@ public class PreGameFrag extends DialogFragment {
 
             //todo tmp => array
 
-            Pstats= new Object[]{((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText(),false};
-            Astats= new Object[]{((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText(),false};
+            Pstats= new Object[]{ Color.parseColor( ((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText() +""),false};
+            Astats= new Object[]{Color.parseColor( ((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText() +""),false};
 
             /*try {
                 FileWriter fw = new FileWriter(new File(getActivity().getFilesDir(),"tmp") );
@@ -61,8 +61,8 @@ public class PreGameFrag extends DialogFragment {
         getActivity().findViewById(R.id.PregameBB).setOnClickListener((v)->{
             if(!(WBsafe && BBsafe)){ Toast.makeText(context, "Hex colours unsafe!", Toast.LENGTH_SHORT).show(); return;}
 
-            Astats= new Object[]{((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText(),false};
-            Pstats= new Object[]{((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText(),false};
+            Astats= new Object[]{ Color.parseColor( ((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText() +""),false};
+            Pstats= new Object[]{Color.parseColor( ((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText() +""),false};
 
             /*
             try {

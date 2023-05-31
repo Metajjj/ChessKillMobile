@@ -56,8 +56,8 @@ public class Main extends AppCompatActivity {
 
     private void SetupFiles(){
         File Ai = new File(getFilesDir(),getString(R.string.AIBrain)), Ratio = new File(getFilesDir(),getString(R.string.RatioRecord));
-        System.out.println( Ai.getAbsolutePath() +"\n"+ Ratio.getAbsolutePath());
-        System.out.println( getFilesDir() );
+        //System.out.println( Ai.getAbsolutePath() +"\n"+ Ratio.getAbsolutePath());
+        //System.out.println( getFilesDir() );
 
         for(File f : getFilesDir().listFiles()){
 

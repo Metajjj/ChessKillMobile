@@ -66,7 +66,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         context = getApplicationContext();
     }
 
-    private Object[] PlStats, AiStats; //{TheirColour,IsKingDead?} (Color/HexString , Boolean)
+    private Object[] PlStats, AiStats; //{TheirColour,IsKingDead?} (Color/int - TV.getCurrCol is int , Boolean)
 
     private Thread th = new Thread(()->{ SetupBoard(); });
 
@@ -87,7 +87,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         //Play with data from Frag
         AiStats=Astats; PlStats=Pstats;
 
-        PlyrTurn = (PlStats[0].toString().equals(s)); //WORKS
+        PlyrTurn = (PlStats[0].equals( Color.parseColor(s) )); //WORKS
 
         TeamSelected();
     }
@@ -215,11 +215,11 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 switch (tag.substring(0,1)){
                     case "A": case "B":
                         //AI
-                        runOnUiThread(()->{ tv.setTextColor(Color.parseColor(AiStats[0].toString())); });
+                        runOnUiThread(()->{ tv.setTextColor((int)AiStats[0]); });
                         break;
                     case "H": case "G":
                         //Pl
-                        runOnUiThread(()->{  tv.setTextColor(Color.parseColor(PlStats[0].toString())); });
+                        runOnUiThread(()->{  tv.setTextColor((int)PlStats[0]); });
                         break;
                 }
             }
@@ -264,9 +264,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
 
             TileOne=null;return;
-        } else if(tv.getCurrentTextColor() == Color.parseColor(PlStats[0].toString())
+        } else if( tv.getCurrentTextColor() == (int)PlStats[0]
                 ||
-                 tv.getCurrentTextColor() == Color.parseColor(PlStats[0].toString()) ) {
+                 tv.getCurrentTextColor() == (int)PlStats[0] ) {
             //Is player's own piece
 
             TileOne = new Object[]{((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), ((ConcurrentHashMap<String, String>) tv.getTag()).get("Piece"), tv.getCurrentTextColor()};
@@ -283,21 +283,22 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         //First check to see if Pawn is moving wrong direction..
 
                 //If T1 is Pl.. make sure piece is moving forward (H=>A) .. <Pl will be greater than T2>
-            //H is bottom.. so plyr is greater than T2
-        if( T1[2].toString().equals(PlStats[0].toString()) ? L1[0] >= L2[0] : L1[0] <= L2[0] ){
+            //H is bottom.. so plyr is greater than T2 .. so if L1[0] is < L2[0] .. err
+        if( T1[2].equals(PlStats[0]) ? L1[0] <= L2[0] : L1[0] >= L2[0] ){
+            System.out.println("WRONGWAY");
             return false;
         }
 
         //If moving forward (number stays same) .. check if moving forward (letters) within 2 tiles .. make sure T2 is neutral--cant move to capture
             //Alrdy checked to make sure isnt moving backwards, so doesnt have to be as strict in checking
-        if( Math.abs(L1[1] - L2[1]) ==0 && Math.abs(L1[0]-L2[0]) <=2 && ! (T2[2].toString().equals(PlStats[0].toString()) || T2[2].toString().equals(AiStats[0]) ) ){
+        if( Math.abs(L1[1] - L2[1]) ==0 && Math.abs(L1[0]-L2[0]) <=2 && ! (T2[2].equals(PlStats[0]) || T2[2].equals(AiStats[0]) ) ){
 
             //Make sure is moving 2 tiles from beginning tile..
             //System.out.println( T1[2].toString()+"=="+Color.parseColor(PlStats[0]+"") +"=>"+ ( T1[2].equals(Color.parseColor(PlStats[0]+"")) ));
             if(Math.abs(L1[0]-L2[0])==2 && (
-                ( T1[2].equals(Color.parseColor(PlStats[0]+"")) && L1[0]=='G' )
+                ( T1[2].equals(PlStats[0]) && L1[0]=='G' )
                 ||
-                ( T1[2].equals(Color.parseColor(AiStats[0]+"")) && L1[0]=='B' )
+                ( T1[2].equals(AiStats[0]) && L1[0]=='B' )
             )){
                 return IsPieceInWay(L1,L2);
 
@@ -306,7 +307,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 return true;
             }
             //Check if moving diagonal (1 letter, 1 number & enemy piece)
-        } else if (Math.abs(L1[1] - L2[1]) == 1 && Math.abs(L1[0]-L2[0]) == 1 && T2[2].toString().equals(AiStats[0])){
+        } else if (Math.abs(L1[1] - L2[1]) == 1 && Math.abs(L1[0]-L2[0]) == 1 && T2[2].equals(AiStats[0])){
             return true;
         }
 
@@ -410,14 +411,21 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             }
         }
 
-        if (tv2.getCurrentTextColor() == Color.parseColor("#888888")) { System.out.println("GREY t2"); /*TurnsTillStalemate=0*/ }
+        if (tv2.getCurrentTextColor() == Color.parseColor("#888888")) { /*TurnsTillStalemate=0*/ }
 
         //CHM = (ConcurrentHashMap<String, String>) tv1.getTag();
         ((ConcurrentHashMap<String, String>) tv2.getTag()).put("Piece", ((ConcurrentHashMap<String, String>) tv1.getTag()).get("Piece") );
         ((ConcurrentHashMap<String, String>) tv1.getTag()).put("Piece","");
 
         //Check if king dead..
-        String s = T2[1].equals("King") ? "T" + (T2[2].equals(Color.parseColor(PlStats[2]+""))) : "F" ;
+        switch(T2[1].equals("King") ? "T" + (T2[2].equals(PlStats[0]) ? "_Pl" : "_Ai") : "F"){
+            case "T_Pl":
+                PlStats[1]=true; break;
+            case "T_Ai":
+                AiStats[1]=true; break;
+            default:
+                break;
+        }
 
     }
 
