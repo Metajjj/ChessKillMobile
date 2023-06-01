@@ -10,6 +10,9 @@
     <string name="RatioRecord">WLR</string>
     <string name="AIBrain">AIbrain</string>
 
+    <string name="Read">R</string>
+    <string name="Write">W</string>
+
     <string name="Pawn">Pawn</string>
     <string name="Rook">Rook</string>
     <string name="Knight">Knight</string>

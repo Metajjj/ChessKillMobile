@@ -73,7 +73,7 @@ public class Main extends AppCompatActivity {
         } if(! Ratio.exists()) {
             try {
                 FileWriter FW = new FileWriter(Ratio);
-                FW.write("Human: 0 | AI: 0 | Tie: 0"); FW.flush(); FW.close();
+                FW.write("Human: 0 |AI: 0 |Tie: 0"); FW.flush(); FW.close();
             } catch (Exception e) { Toast.makeText(context,"Err making ratio",Toast.LENGTH_SHORT).show(); }
         }
 

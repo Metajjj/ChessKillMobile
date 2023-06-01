@@ -67,6 +67,10 @@ public class Record  extends AppCompatActivity {
             try {
                 BufferedReader bfr = new BufferedReader(new FileReader(new File(getFilesDir(), getString(R.string.RatioRecord))));
                 s = bfr.readLine();
+                String[] S = s.split("\\|"); s="";
+                for(String x : S){ s+=x +" | "; }
+                s = s.substring(0,s.length()-2);
+
                 bfr.close();
             } catch (Exception e) {
                 s = "Err reading file!"; System.err.println("Err: "+e);
@@ -76,9 +80,10 @@ public class Record  extends AppCompatActivity {
             findViewById(R.id.RecordResetWLR).setOnClickListener((v) -> {
                 try {
                     FileWriter FW = new FileWriter(new File(getFilesDir(), getString(R.string.RatioRecord)));
-                    FW.write("Human: 0 | AI: 0 | Tie: 0"); FW.flush(); FW.close();
+                    FW.write("Human: 0 |AI: 0 |Tie: 0");
+                    FW.flush(); FW.close();
                     Toast.makeText(context,"WLR reset!",Toast.LENGTH_SHORT).show();
-                    Thread.currentThread().start();
+                    ((TextView) findViewById(R.id.RecordWLR)).setText("Human: 0  |  AI: 0  |  Tie: 0");
                 } catch (Exception e) {
                     Toast.makeText(context, "Err resetting ratio", Toast.LENGTH_SHORT).show();
                 }

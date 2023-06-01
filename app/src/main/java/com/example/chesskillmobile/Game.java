@@ -23,10 +23,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackReceived {
     //Implement to send data from Frag to Activity
@@ -251,19 +256,18 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
                     Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nAllowed move!",Toast.LENGTH_SHORT).show();
                 } else {
-
                     Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nInvalid move!",Toast.LENGTH_SHORT).show();
                 }
             }catch (Exception e){
                 System.err.println("ReflectionInvoke Err: "+e);
+
+                //Appears to occur from clicking too fast..?
+
                 Toast.makeText(this, "Srs err, reflection err\nAborting game..", Toast.LENGTH_LONG).show();
-                new Handler().postDelayed(()->{
-                    startActivity(new Intent(this,Main.class));
-                },2000);
+                new Handler().postDelayed(()->{ startActivity(new Intent(this,Main.class)); },2000);
             }
 
-
-            TileOne=null;return;
+            TileOne=null;
         } else if( tv.getCurrentTextColor() == (int)PlStats[0]
                 ||
                  tv.getCurrentTextColor() == (int)PlStats[0] ) {
@@ -285,13 +289,15 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 //If T1 is Pl.. make sure piece is moving forward (H=>A) .. <Pl will be greater than T2>
             //H is bottom.. so plyr is greater than T2 .. so if L1[0] is < L2[0] .. err
         if( T1[2].equals(PlStats[0]) ? L1[0] <= L2[0] : L1[0] >= L2[0] ){
-            System.out.println("WRONGWAY");
+            //System.out.println("WRONGWAY");
             return false;
         }
 
         //If moving forward (number stays same) .. check if moving forward (letters) within 2 tiles .. make sure T2 is neutral--cant move to capture
             //Alrdy checked to make sure isnt moving backwards, so doesnt have to be as strict in checking
         if( Math.abs(L1[1] - L2[1]) ==0 && Math.abs(L1[0]-L2[0]) <=2 && ! (T2[2].equals(PlStats[0]) || T2[2].equals(AiStats[0]) ) ){
+
+            //System.out.println("check if 2");
 
             //Make sure is moving 2 tiles from beginning tile..
             //System.out.println( T1[2].toString()+"=="+Color.parseColor(PlStats[0]+"") +"=>"+ ( T1[2].equals(Color.parseColor(PlStats[0]+"")) ));
@@ -411,11 +417,16 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             }
         }
 
-        if (tv2.getCurrentTextColor() == Color.parseColor("#888888")) { /*TurnsTillStalemate=0*/ }
+        if (tv2.getCurrentTextColor() == Color.parseColor("#888888")) { TurnsTillStalemate=0; }
 
         //CHM = (ConcurrentHashMap<String, String>) tv1.getTag();
         ((ConcurrentHashMap<String, String>) tv2.getTag()).put("Piece", ((ConcurrentHashMap<String, String>) tv1.getTag()).get("Piece") );
         ((ConcurrentHashMap<String, String>) tv1.getTag()).put("Piece","");
+
+        //While temp no BGR..has to use Txt..
+        tv2.setText(tv1.getText()); tv1.setText(((ConcurrentHashMap<String, String>) tv1.getTag()).get("ID"));
+        tv1.setTextColor(Color.parseColor("#888888")); tv2.setTextColor((int)T1[2]);
+
 
         //Check if king dead..
         switch(T2[1].equals("King") ? "T" + (T2[2].equals(PlStats[0]) ? "_Pl" : "_Ai") : "F"){
@@ -427,7 +438,83 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 break;
         }
 
+        GameMoveRecord += ((ConcurrentHashMap<String, String>) tv1.getTag()).get("ID")+((ConcurrentHashMap<String, String>) tv2.getTag()).get("ID");
+
+        AdvanceTurn();
     }
 
+    private Integer TurnsTillStalemate=0;
+    private String GameMoveRecord="";
     private boolean PlyrTurn=true;
+
+    private void AdvanceTurn(){
+        TurnsTillStalemate++; PlyrTurn=!PlyrTurn; MainLoop();
+    }
+
+    private void MainLoop(){
+        TurnsTillStalemate+=200;
+        if( AiStats[1].equals(true) || PlStats[1].equals(true) || TurnsTillStalemate>=200){
+            Toast.makeText(context, (TurnsTillStalemate<200 ? ( (boolean)AiStats[1] ? "Player" : "AI" ) +" Wins!" : "TIE/DRAW!"), Toast.LENGTH_SHORT).show();
+
+            //Write res to WLR file..
+            WriteResWLR();
+
+            //InteractBrainFile..
+            //InteractBrainFile();
+
+            //Disable onclicks
+            for(int i=0 ;i < ((TableLayout)findViewById(R.id.GameTable)).getChildCount(); i++) { TableRow tr = (TableRow) ((TableLayout) findViewById(R.id.GameTable)).getChildAt(i); for (int j = 0; j < tr.getChildCount(); j++) { TextView tv = (TextView) tr.getChildAt(j); tv.setOnClickListener(null); } }
+
+            return;
+        }
+    }
+    private void InteractBrainFile(String IOmode){
+        if(IOmode.equals(getString(R.string.Read))){
+            String[] FailedMoves = new String[]{};
+
+            try{
+                BufferedReader bfr = new BufferedReader(new FileReader(new File(getFilesDir(),getString(R.string.RatioRecord))));
+                String s = bfr.readLine(); bfr.close();
+            }catch (Exception e){ System.err.println("ReadBrain err: "+e); }
+
+
+        }else if(IOmode.equals(getString(R.string.Write))){
+
+        }
+    }
+
+    private void WriteResWLR(){
+        try {
+            String toWrite="", toFind = (AiStats[1].equals(true)) ? "AI" : PlStats[1].equals(true) ? "Human" : "Tie";
+            BufferedReader bfr = new BufferedReader(new FileReader(new File(getFilesDir(),getString(R.string.RatioRecord))));
+            String s = bfr.readLine(); bfr.close();
+            //System.out.println("S: "+s);
+            String[] S = s.split("\\|");
+            for(String x : S){
+                //System.err.println("x:"+x+"|"+toFind);
+                if (x.contains(toFind)){
+                    //System.out.println("FoundWinner");
+                    Matcher m = Pattern.compile("\\d+").matcher(x);
+                    if(m.find(0)){
+                        int Ratio = Integer.parseInt( x.substring(m.start(),m.end()) );
+                        x = x.substring(0,m.start()) + ++Ratio;
+                    }
+                }
+                toWrite+=x+" |";
+            }
+            toWrite = toWrite.substring(0,toWrite.length()-2);
+
+            FileWriter fw = new FileWriter(new File(getFilesDir(), "WLR"));
+            fw.write(toWrite); fw.flush(); fw.close();
+        }catch (Exception e){
+            System.err.println("WLR err: "+e);
+            Toast.makeText(context, "Err occured recording results!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(this,Main.class));
+    }
 }
