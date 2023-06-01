@@ -464,18 +464,35 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     private void PossibleMovesAllowed(){
         try {
             //Using .join as alt Async method..
-            ArrayList<String> s = new ArrayList<>(); s.add("A");
-            s.add(s.indexOf("A"),"B");
 
             th = new Thread(() -> {
-                    //todo Have constant Array that holds tv.. update it when tvs update ? saves looping lots
-                for(TextView tv : RecordOfTiles){
+                //todo figure out a way to store differing vals..
+                ConcurrentHashMap<Object[],ConcurrentHashMap<Object[],Object[]>> PMA = new ConcurrentHashMap<>();
+                    //Need alternative for.. multiple of same key
+                //Stores possible moves allowed
 
+                for(TextView tv : RecordOfTiles){
+                    if (tv.getCurrentTextColor() == (int)AiStats[0]){
+                        //Check for each.. AI piece
+                        for (TextView tv2 : RecordOfTiles) {
+                            if( tv2.getCurrentTextColor() == (int) AiStats[0]){ continue; }
+                            //Skip if same col
+                            boolean Res = false;//Check if T1=>T2 good..
+
+                            if(Res){
+                                //PMA.put()
+                            }
+                        }
+                    }
                 }
             });
             th.start();
 
         }catch (Exception e){ System.err.println("PMA ERR: "+e); }
+
+    }
+
+    private void IsMoveSafe(){
 
     }
 
