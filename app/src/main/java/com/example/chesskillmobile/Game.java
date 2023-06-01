@@ -165,6 +165,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
                 TR.addView(TV);
 
+                RecordOfTiles.add(TV); //Fill / mini-initialise RecordOfTiles
+
                 Collections.reverse(bgcols); //System.out.println(bgcols);
             }
             Collections.reverse(bgcols);
@@ -179,55 +181,63 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         String[] LastRowPieces = new String[]{getResources().getString(R.string.Rook),getResources().getString(R.string.Knight),getResources().getString(R.string.Bishop),getResources().getString(R.string.King),getResources().getString(R.string.Queen),getResources().getString(R.string.Bishop),getResources().getString(R.string.Knight),getResources().getString(R.string.Rook)};
 
-        for(int i=0 ;i < ((TableLayout)findViewById(R.id.GameTable)).getChildCount(); i++){
-            TableRow tr = (TableRow) ((TableLayout)findViewById(R.id.GameTable)).getChildAt(i);
-            for (int j=0 ;j < tr.getChildCount();j++){
-                TextView tv = (TextView) tr.getChildAt(j);
 
-                ConcurrentHashMap<String,String> CHM = (ConcurrentHashMap<String, String>) tv.getTag();
-                String s = CHM.get("ID");
+        for(TextView tv : RecordOfTiles) {
 
-                //Tag: A1 || G3 ..
-                //String L = tag.substring(0,1), N = tag.substring(1);
-                switch (s.substring(0,1)){
-                    case ("B"): case ("G"):
-                        runOnUiThread(()->{
-                            tv.setText(getResources().getString(R.string.Pawn));
-                            CHM.put("Piece",getResources().getString(R.string.Pawn));
-                            tv.setTag(CHM);
-                        });
-                        break;
-                    case ("A"): case("H"):
-                        runOnUiThread(()-> {
-                            tv.setText( LastRowPieces[Integer.parseInt(s.substring(1)) - 1] );
-                            CHM.put("Piece",LastRowPieces[Integer.parseInt(s.substring(1)) - 1]);
-                            tv.setTag(CHM);
-                        });
-                        break;
-                }
+            ConcurrentHashMap<String, String> CHM = (ConcurrentHashMap<String, String>) tv.getTag();
+            String s = CHM.get("ID");
+
+            //Tag: A1 || G3 ..
+            //String L = tag.substring(0,1), N = tag.substring(1);
+            switch (s.substring(0, 1)) {
+                case ("B"):
+                case ("G"):
+                    runOnUiThread(() -> {
+                        tv.setText(getResources().getString(R.string.Pawn));
+                        CHM.put("Piece", getResources().getString(R.string.Pawn));
+                        tv.setTag(CHM);
+
+                        RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);
+                    });
+                    break;
+                case ("A"):
+                case ("H"):
+                    runOnUiThread(() -> {
+                        tv.setText(LastRowPieces[Integer.parseInt(s.substring(1)) - 1]);
+                        CHM.put("Piece", LastRowPieces[Integer.parseInt(s.substring(1)) - 1]);
+                        tv.setTag(CHM);
+
+                        RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);
+                    });
+                    break;
             }
         }
+
 
         ApplyTeamCols();
     }
 
     private void ApplyTeamCols(){
-        for(int i=0 ;i < ((TableLayout)findViewById(R.id.GameTable)).getChildCount(); i++) {
-            TableRow tr = (TableRow) ((TableLayout) findViewById(R.id.GameTable)).getChildAt(i);
-            for (int j = 0; j < tr.getChildCount(); j++) {
-                TextView tv = (TextView) tr.getChildAt(j);
-                String tag = ((ConcurrentHashMap<String, String>) tv.getTag()).get("ID");
-                switch (tag.substring(0,1)){
-                    case "A": case "B":
-                        //AI
-                        runOnUiThread(()->{ tv.setTextColor((int)AiStats[0]); });
-                        break;
-                    case "H": case "G":
-                        //Pl
-                        runOnUiThread(()->{  tv.setTextColor((int)PlStats[0]); });
-                        break;
-                }
+
+        for(TextView tv : RecordOfTiles) {
+            String tag = ((ConcurrentHashMap<String, String>) tv.getTag()).get("ID");
+            switch (tag.substring(0, 1)) {
+                case "A": case "B":
+                    //AI
+                    runOnUiThread(() -> {
+                        tv.setTextColor((int) AiStats[0]);
+                        RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);
+                    });
+                    break;
+                case "H": case "G":
+                    //Pl
+                    runOnUiThread(() -> {
+                        tv.setTextColor((int) PlStats[0]);
+                        RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);
+                    });
+                    break;
             }
+
         }
 
         //System.out.println(( PlyrTurn ? "Ply 1st" : "Ai 1st" )); //works
@@ -424,9 +434,11 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         ((ConcurrentHashMap<String, String>) tv1.getTag()).put("Piece","");
 
         //While temp no BGR..has to use Txt..
+
         tv2.setText(tv1.getText()); tv1.setText(((ConcurrentHashMap<String, String>) tv1.getTag()).get("ID"));
         tv1.setTextColor(Color.parseColor("#888888")); tv2.setTextColor((int)T1[2]);
 
+        RecordOfTiles.set(RecordOfTiles.indexOf(tv1), tv1); RecordOfTiles.set(RecordOfTiles.indexOf(tv2), tv2);
 
         //Check if king dead..
         switch(T2[1].equals("King") ? "T" + (T2[2].equals(PlStats[0]) ? "_Pl" : "_Ai") : "F"){
@@ -447,12 +459,33 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     private String GameMoveRecord="";
     private boolean PlyrTurn=true;
 
+    private ArrayList<TextView> RecordOfTiles = new ArrayList<>();
+
+    private void PossibleMovesAllowed(){
+        try {
+            //Using .join as alt Async method..
+            ArrayList<String> s = new ArrayList<>(); s.add("A");
+            s.add(s.indexOf("A"),"B");
+
+            th = new Thread(() -> {
+                    //todo Have constant Array that holds tv.. update it when tvs update ? saves looping lots
+                for(TextView tv : RecordOfTiles){
+
+                }
+            });
+            th.start();
+
+        }catch (Exception e){ System.err.println("PMA ERR: "+e); }
+
+    }
+
     private void AdvanceTurn(){
         TurnsTillStalemate++; PlyrTurn=!PlyrTurn; MainLoop();
     }
 
     private void MainLoop(){
-        TurnsTillStalemate+=200;
+        PossibleMovesAllowed();
+        //TurnsTillStalemate+=200;
         if( AiStats[1].equals(true) || PlStats[1].equals(true) || TurnsTillStalemate>=200){
             Toast.makeText(context, (TurnsTillStalemate<200 ? ( (boolean)AiStats[1] ? "Player" : "AI" ) +" Wins!" : "TIE/DRAW!"), Toast.LENGTH_SHORT).show();
 
@@ -460,7 +493,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             WriteResWLR();
 
             //InteractBrainFile..
-            //InteractBrainFile();
+            InteractBrainFile(getString(R.string.Read),null);
 
             //Disable onclicks
             for(int i=0 ;i < ((TableLayout)findViewById(R.id.GameTable)).getChildCount(); i++) { TableRow tr = (TableRow) ((TableLayout) findViewById(R.id.GameTable)).getChildAt(i); for (int j = 0; j < tr.getChildCount(); j++) { TextView tv = (TextView) tr.getChildAt(j); tv.setOnClickListener(null); } }
@@ -468,24 +501,48 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             return;
         }
     }
-    private void InteractBrainFile(String IOmode){
+    private boolean InteractBrainFile(String IOmode, @Nullable String Movement){
+        GameMoveRecord="A4A6";
+
         if(IOmode.equals(getString(R.string.Read))){
-            String[] FailedMoves = new String[]{};
+            ArrayList<String> FailedMoves = new ArrayList<>();
 
             try{
-                BufferedReader bfr = new BufferedReader(new FileReader(new File(getFilesDir(),getString(R.string.RatioRecord))));
-                String s = bfr.readLine(); bfr.close();
+                BufferedReader bfr = new BufferedReader(new FileReader(new File(getFilesDir(),getString(R.string.AIBrain))));
+                String l = bfr.readLine();
+                while(l!=null){ FailedMoves.add(l); l = bfr.readLine(); }
+                bfr.close();
+
+                //System.err.println("FM:\n "+FailedMoves);
+
+                //System.out.println("FailedMoves.contains(GameMoveRecord) = "+FailedMoves.contains(GameMoveRecord));
+                return ! FailedMoves.contains(GameMoveRecord+Movement);
+                    //Returns false if shouldnt make the move (determines it leads to failure alrdy recorded)
+
+                //Return bool..?
             }catch (Exception e){ System.err.println("ReadBrain err: "+e); }
 
 
         }else if(IOmode.equals(getString(R.string.Write))){
+            //Ai lost..
+            if(GameMoveRecord.length()<4){ Toast.makeText(context, "Ai lost unusually!", Toast.LENGTH_SHORT).show(); return false; }
+
+            try{
+                FileWriter fw = new FileWriter(new File(getFilesDir(),getString(R.string.AIBrain)));
+                    //Record the move it made before enemy got its king
+                fw.append("\n").append(GameMoveRecord.substring(0,GameMoveRecord.length()-4));
+                fw.flush();fw.close();
+
+            }catch (Exception e){ Toast.makeText(context, "Ai failed to learn!", Toast.LENGTH_SHORT).show();; System.err.println("WriteBrain err: "+e); }
 
         }
+
+        return false;
     }
 
     private void WriteResWLR(){
         try {
-            String toWrite="", toFind = (AiStats[1].equals(true)) ? "AI" : PlStats[1].equals(true) ? "Human" : "Tie";
+            String toWrite="", toFind = (AiStats[1].equals(true)) ? "Human" : PlStats[1].equals(true) ? "AI" : "Tie";
             BufferedReader bfr = new BufferedReader(new FileReader(new File(getFilesDir(),getString(R.string.RatioRecord))));
             String s = bfr.readLine(); bfr.close();
             //System.out.println("S: "+s);
@@ -497,12 +554,14 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     Matcher m = Pattern.compile("\\d+").matcher(x);
                     if(m.find(0)){
                         int Ratio = Integer.parseInt( x.substring(m.start(),m.end()) );
-                        x = x.substring(0,m.start()) + ++Ratio;
+                        x = x.substring(0,m.start()) + ++Ratio +" ";
                     }
                 }
-                toWrite+=x+" |";
+                toWrite+=x+"|";
             }
-            toWrite = toWrite.substring(0,toWrite.length()-2);
+            toWrite = toWrite.substring(0,toWrite.length()-1);
+
+            //System.out.println("WLR: "+toWrite);
 
             FileWriter fw = new FileWriter(new File(getFilesDir(), "WLR"));
             fw.write(toWrite); fw.flush(); fw.close();

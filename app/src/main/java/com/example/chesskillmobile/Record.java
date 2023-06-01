@@ -68,8 +68,10 @@ public class Record  extends AppCompatActivity {
                 BufferedReader bfr = new BufferedReader(new FileReader(new File(getFilesDir(), getString(R.string.RatioRecord))));
                 s = bfr.readLine();
                 String[] S = s.split("\\|"); s="";
-                for(String x : S){ s+=x +" | "; }
+                for(String x : S){ s+=x +"| "; }
                 s = s.substring(0,s.length()-2);
+
+                System.out.println(s);
 
                 bfr.close();
             } catch (Exception e) {
