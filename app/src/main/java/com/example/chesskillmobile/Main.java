@@ -104,4 +104,10 @@ public class Main extends AppCompatActivity {
             findViewById(R.id.MainInfo).performClick();
         });
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finishAffinity();
+    }
 }

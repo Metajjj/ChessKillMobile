@@ -128,10 +128,12 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     private TextView SetupTxtVw(String ID,int P){
         TextView tv = new TextView(this);
 
+        //todo stop views being stretchable
+
         ConcurrentHashMap<String,String> CHM = new ConcurrentHashMap<String,String>(){}; CHM.put("ID",ID); CHM.put("Piece","");
         //Tag need UID.. hashmap easier to maintain
 
-        tv.setTag(CHM); tv.setLayoutParams(new TableRow.LayoutParams((int) (P*0.1), ViewGroup.LayoutParams.MATCH_PARENT));
+        tv.setTag(CHM); tv.setLayoutParams(new TableRow.LayoutParams((int) (P*0.1), (int) (P*0.1)));
         tv.setMinimumWidth((int) (P*0.1)); tv.setMinimumHeight((int) (P*0.1));
         tv.setTextSize( 10 * getResources().getDisplayMetrics().density ); //10 min..
         tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER); tv.setGravity(Gravity.CENTER);
@@ -562,7 +564,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         //TurnsTillStalemate+=200;
         if( AiStats[1].equals(true) || PlStats[1].equals(true) || TurnsTillStalemate>=200){
-            Toast.makeText(context, (TurnsTillStalemate<200 ? ( (boolean)AiStats[1] ? "Player" : "AI" ) +" Wins!" : "TIE/DRAW!"), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, (TurnsTillStalemate<200 ? ( (boolean)AiStats[1] ? "Player" : "AI" ) +" Wins!" : "TIE/DRAW!"), Toast.LENGTH_LONG).show();
 
             //Write res to WLR file..
             WriteResWLR();
@@ -574,6 +576,23 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
             //Disable onclicks
             for(int i=0 ;i < ((TableLayout)findViewById(R.id.GameTable)).getChildCount(); i++) { TableRow tr = (TableRow) ((TableLayout) findViewById(R.id.GameTable)).getChildAt(i); for (int j = 0; j < tr.getChildCount(); j++) { TextView tv = (TextView) tr.getChildAt(j); tv.setOnClickListener(null); } }
+
+            new Thread(()-> {
+                try {
+                    for (int i = 30; i > 0; i--) {
+                        Thread.sleep(1000);
+                        if(i==10){ runOnUiThread(()->{
+                            Toast.makeText(context,"Returning to MainMenu in 10s!",Toast.LENGTH_LONG).show();
+                            });
+                        }
+                    }
+                    runOnUiThread(() -> {
+                        startActivity(new Intent(context, Main.class).setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY));
+                    });
+                } catch (Exception e) {
+                    System.err.println("SRS err occurred w countdown!");
+                }
+            }).start();
 
             return;
         }
