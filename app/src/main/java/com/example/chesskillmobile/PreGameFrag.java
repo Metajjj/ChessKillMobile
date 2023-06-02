@@ -44,8 +44,6 @@ public class PreGameFrag extends DialogFragment {
         getActivity().findViewById(R.id.PregameWB).setOnClickListener((v)->{
             if(!(WBsafe && BBsafe)){ Toast.makeText(context, "Hex colours unsafe!", Toast.LENGTH_SHORT).show(); return;}
 
-            //todo tmp => array
-
             Pstats= new Object[]{ Color.parseColor( ((TextView)getActivity().findViewById(R.id.PregameWBcol)).getText() +""),false};
             Astats= new Object[]{Color.parseColor( ((TextView)getActivity().findViewById(R.id.PregameBBcol)).getText() +""),false};
 

@@ -39,8 +39,6 @@ public class Record  extends AppCompatActivity {
         );
     }
 
-    //todo OnPickTeam ----- DetailedView?? (Includes TileName || else ignore)
-
     private Context context;
 
     @Override

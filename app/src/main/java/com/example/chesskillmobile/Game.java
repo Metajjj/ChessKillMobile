@@ -56,8 +56,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         );
     }
 
-    //todo OnPickTeam ----- DetailedView?? (Includes TileName || else ignore)
-
     private Context context;
 
     @Override
@@ -85,7 +83,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         getSupportFragmentManager().beginTransaction().replace(R.id.GameFragHolder, PreGameFrag.class, null).commit();
         findViewById(R.id.GameFragHolder).bringToFront();
-        //todo Frag to cover setting up.. and grab team col pick -- make frag disappear based on time takes to make board?
     }
 
     //To run when frag closes.. required via implementation
@@ -128,8 +125,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     private TextView SetupTxtVw(String ID,int P){
         TextView tv = new TextView(this);
 
-        //todo stop views being stretchable
-
         ConcurrentHashMap<String,String> CHM = new ConcurrentHashMap<String,String>(){}; CHM.put("ID",ID); CHM.put("Piece","");
         //Tag need UID.. hashmap easier to maintain
 
@@ -139,8 +134,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER); tv.setGravity(Gravity.CENTER);
 
         tv.setTypeface(null, Typeface.BOLD); tv.setOnClickListener(this::TileSelected);
-
-        //todo some kind of auto_wrap basing it on txt size..
 
         return tv;
     }
@@ -376,8 +369,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
     private boolean IsPieceInWay(char[] L1,char[] L2){
 
-        //todo ERR: a1=>f1
-
         boolean safe=true;
 
         ArrayList<String> TilePath = new ArrayList<>();
@@ -471,7 +462,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             //Using .join as alt Async method..
 
             th = new Thread(() -> {
-                //todo figure out a way to store differing vals..
                 ConcurrentHashMap<Object[],ArrayList<Object[]>> PMA = new ConcurrentHashMap<>();
                     //Need alternative for.. multiple of same key
                 //Stores possible moves allowed
