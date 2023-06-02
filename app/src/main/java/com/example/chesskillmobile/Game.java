@@ -87,14 +87,16 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
     //To run when frag closes.. required via implementation
     @Override
-    public void TeamChosen(Object[] Astats, Object[] Pstats, String s) {
+    public void TeamChosen(Object[] Astats, Object[] Pstats, String s, Boolean dv) {
         //Play with data from Frag
-        AiStats=Astats; PlStats=Pstats;
+        AiStats=Astats; PlStats=Pstats; DetailedView=dv;
 
         PlyrTurn = (PlStats[0].equals( Color.parseColor(s) )); //WORKS
 
         TeamSelected();
     }
+
+    private boolean DetailedView=true;
 
     private void IsMainThread(){ System.out.println( Thread.currentThread() == Looper.getMainLooper().getThread() ); }
 
@@ -157,7 +159,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 TV.setBackgroundColor( bgcols.get(0) );
 
                 String s = ((ConcurrentHashMap<String,String>)TV.getTag()).get("ID");
-                TV.setText(s); //todo Change from txt to Drawables(simple) w col filters..
+                TV.setText( DetailedView ? s : "" );
                 TV.setTextColor(Color.parseColor("#888888"));
 
                 TR.addView(TV);
@@ -181,12 +183,16 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         for(TextView tv : RecordOfTiles) {
 
+            //BoardSetup runs before checking dv.. this will overwrite based on plyr choice
+            if(! DetailedView){ tv.setText(""); }
+
             ConcurrentHashMap<String, String> CHM = (ConcurrentHashMap<String, String>) tv.getTag();
             String s = CHM.get("ID");
 
             //Tag: A1 || G3 ..
             //String L = tag.substring(0,1), N = tag.substring(1);
             switch (s.substring(0, 1)) {
+                //todo Change from txt to Drawables(simple) w col filters..
                 case ("B"):
                 case ("G"):
                     runOnUiThread(() -> {

@@ -8,6 +8,8 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -153,14 +155,14 @@ public class PreGameFrag extends DialogFragment {
 
         String s = ((EditText)getActivity().findViewById(R.id.PregameWBcol)).getText()+"";
 
-        OCR.TeamChosen( Astats, Pstats, s );
+        OCR.TeamChosen( Astats, Pstats, s, ((CheckBox)getActivity().findViewById(R.id.PregameCheckBox)).isChecked() );
         //new Game().TeamChosen(); //err accessing file
     }
 
     private Object[] Astats,Pstats;
 
     public interface OnCallbackReceived{
-        void TeamChosen(Object[] a,Object[] b, String s);  //Sending back the TxtCol of white to determine who plays first
+        void TeamChosen(Object[] a,Object[] b, String s, Boolean dv);  //Sending back the TxtCol of white to determine who plays first
     }
 
     OnCallbackReceived OCR; //Has to be casted in onAttach
