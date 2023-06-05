@@ -221,6 +221,11 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
                             ((GradientDrawable) ld.getDrawable(0)).setColor(Color.parseColor("#FF0000FF"));
 
+                            if(RecordOfTiles.indexOf(tv) == 12){
+                                ((GradientDrawable) ld.getDrawable(0)).setColor(Color.parseColor("#FFFF7F00"));
+                            }
+                            //Constantly creates from orig.. will never affect others
+
 
 
                             GradientDrawable shape = (GradientDrawable) LD.getDrawable(0);
@@ -228,7 +233,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                             //BitmapDrawable bd = (BitmapDrawable) LD.getDrawable(1);
                             //bd.setAlpha(1); //is 0-255 not 0.0-1.0
 
-                            tv.setBackground( ( RecordOfTiles.indexOf(tv) == 10 ) ? ld : LD);
+                            tv.setBackground( ( RecordOfTiles.indexOf(tv) == 10 || RecordOfTiles.indexOf(tv) == 12 ) ? ld : LD);
 
                         }else{
                             tv.setText(getResources().getString(R.string.Pawn));
