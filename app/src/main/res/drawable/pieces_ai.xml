@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true">
-        <layer-list>
-            <item><shape android:shape="rectangle"><solid android:color="#00FF00"/> </shape> </item>
-            <item android:drawable="@drawable/knight"/>
-        </layer-list>
-    </item>
-
-    <item android:state_pressed="false"> -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/PieceBg">
-        <!--todo replace col w tile col -->
         <shape android:shape="rectangle">
             <solid android:color="#FFFFFF"/>
         </shape>
@@ -34,36 +23,15 @@
     <item>
         <bitmap android:alpha="1" android:src="@drawable/queen" android:tint="#7F00FF"/>
     </item>
-</layer-list>
-    <!--/item>
 
-
+    <!-- Extra to match array in code -->
     <item>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+        <bitmap android:alpha="1" android:src="@drawable/bishop" android:tint="#00FF00"/>
+    </item>
     <item>
-        <shape android:shape="rectangle">
-            <solid android:color="#80ffffff"/>
-        </shape>
+        <bitmap android:alpha="1" android:src="@drawable/knight" android:tint="#FFFF00"/>
     </item>
-    <item android:drawable="@drawable/queen">
-        <color android:color="#00000000"/>
+    <item>
+        <bitmap android:alpha="1" android:src="@drawable/rook" android:tint="#FF7F00"/>
     </item>
-    <item android:drawable="@drawable/rook">
-        <color android:color="#00000000"/>
-    </item>
-    <item android:drawable="@drawable/pawn">
-        <color android:color="#00000000"/>
-    </item>
-    <item android:drawable="@drawable/knight">
-        <color android:color="#00000000"/>
-    </item>
-    <item android:drawable="@drawable/king">
-        <color android:color="#00000000"/>
-    </item>
-    <item android:drawable="@drawable/bishop">
-        <color android:color="#00000000"/>
-    </item>
-
 </layer-list>
-    </item-->
-<!--</selector>-->

@@ -244,8 +244,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                             ((GradientDrawable) ld.getDrawable(0)).setColor(Integer.parseInt(CHM.get("OriginalBg")));
 
                             for(int i=1;i<ld.getNumberOfLayers();i++){
-                                //todo fix this
-                                if( i == s2){
+                                if( i-1 == s2){
                                     ld.getDrawable(i).setAlpha(255); ld.getDrawable(i).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
                                 }else{ ld.getDrawable(i).setAlpha(0); }
                             }
