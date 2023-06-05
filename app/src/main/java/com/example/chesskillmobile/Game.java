@@ -3,6 +3,7 @@ package com.example.chesskillmobile;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +20,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -196,7 +198,13 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 case ("B"):
                 case ("G"):
                     runOnUiThread(() -> {
-                        tv.setText(getResources().getString(R.string.Pawn));
+                        //tv.setText(getResources().getString(R.string.Pawn));
+                        tv.setText("");
+
+                        //(ResourcesCompat.getDrawable(getResources(),R.drawable.tri,getTheme())).setColorFilter(TxtCol, PorterDuff.Mode.SRC_IN);
+                        ResourcesCompat.getDrawable(getResources(),R.drawable.pawn,getTheme()).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
+                        tv.setBackgroundResource(R.drawable.pawn);  //RunAfterTeamCols?
+
                         CHM.put("Piece", getResources().getString(R.string.Pawn));
                         tv.setTag(CHM);
 
