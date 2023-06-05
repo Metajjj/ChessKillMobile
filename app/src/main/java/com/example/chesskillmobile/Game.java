@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -89,16 +90,16 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
     //To run when frag closes.. required via implementation
     @Override
-    public void TeamChosen(Object[] Astats, Object[] Pstats, String s, Boolean dv) {
+    public void TeamChosen(Object[] Astats, Object[] Pstats, String s, Boolean dv, Boolean icons) {
         //Play with data from Frag
-        AiStats=Astats; PlStats=Pstats; DetailedView=dv;
+        AiStats=Astats; PlStats=Pstats; DetailedView=dv; UseIcons=icons;
 
         PlyrTurn = (PlStats[0].equals( Color.parseColor(s) )); //WORKS
 
         TeamSelected();
     }
 
-    private boolean DetailedView=true;
+    private boolean DetailedView=true, UseIcons=false;
 
     private void IsMainThread(){ System.out.println( Thread.currentThread() == Looper.getMainLooper().getThread() ); }
 
@@ -126,10 +127,10 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         } catch (Exception e) { System.err.println(e); }
     }
 
-    private TextView SetupTxtVw(String ID,int P){
+    private TextView SetupTxtVw(String ID,int P,int bg){
         TextView tv = new TextView(this);
 
-        ConcurrentHashMap<String,String> CHM = new ConcurrentHashMap<String,String>(){}; CHM.put("ID",ID); CHM.put("Piece","");
+        ConcurrentHashMap<String,String> CHM = new ConcurrentHashMap<String,String>(){}; CHM.put("ID",ID); CHM.put("Piece",""); CHM.put("OriginalBg", String.valueOf(bg));
         //Tag need UID.. hashmap easier to maintain
 
         tv.setTag(CHM); tv.setLayoutParams(new TableRow.LayoutParams((int) (P*0.1), (int) (P*0.1)));
@@ -147,8 +148,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         int P = Math.min(getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().heightPixels);
                     //math.min returns smallest number
 
-        ArrayList<Integer> bgcols = new ArrayList<>();
-        bgcols.add(Color.WHITE); bgcols.add(Color.BLACK);
+        ArrayList<Integer> bgcols = new ArrayList<>(); bgcols.add(Color.WHITE); bgcols.add(Color.BLACK);
 
         TableLayout TL = findViewById(R.id.GameTable); TL.removeAllViews();
         for(char j='A';j<='H';j++){
@@ -156,7 +156,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             TR.setLayoutParams( new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,(int) (P*0.9)));
             for(int i=1;i<=0+8;i++){
                 //System.out.println("Tile: "+j+""+i);
-                TextView TV = SetupTxtVw(j+""+i, P);
+                TextView TV = SetupTxtVw(j+""+i, P, bgcols.get(0) );
                 //System.out.println(bgcols.get(0) +":"+j+""+i);
                 TV.setBackgroundColor( bgcols.get(0) );
 
@@ -177,16 +177,19 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     }
 
     private void SetupPieces(){
+        ApplyTeamCols();
+
         //System.out.println("S P..");
         //IsMainThread(); //isnt main thread
+        String[] LastRowPieces = new String[]{getResources().getString(R.string.Rook), getResources().getString(R.string.Knight), getResources().getString(R.string.Bishop), getResources().getString(R.string.King), getResources().getString(R.string.Queen), getResources().getString(R.string.Bishop), getResources().getString(R.string.Knight), getResources().getString(R.string.Rook)};
+        Integer[] LastRowPiecess = new Integer[]{R.drawable.rook,R.drawable.knight,R.drawable.bishop,R.drawable.king,R.drawable.queen,R.drawable.bishop,R.drawable.knight,R.drawable.rook};
 
-        String[] LastRowPieces = new String[]{getResources().getString(R.string.Rook),getResources().getString(R.string.Knight),getResources().getString(R.string.Bishop),getResources().getString(R.string.King),getResources().getString(R.string.Queen),getResources().getString(R.string.Bishop),getResources().getString(R.string.Knight),getResources().getString(R.string.Rook)};
 
 
         for(TextView tv : RecordOfTiles) {
 
             //BoardSetup runs before checking dv.. this will overwrite based on plyr choice
-            if(! DetailedView){ tv.setText(""); }
+            if(! DetailedView){ runOnUiThread(()->{ tv.setText(""); }); }
 
             ConcurrentHashMap<String, String> CHM = (ConcurrentHashMap<String, String>) tv.getTag();
             String s = CHM.get("ID");
@@ -194,16 +197,19 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             //Tag: A1 || G3 ..
             //String L = tag.substring(0,1), N = tag.substring(1);
             switch (s.substring(0, 1)) {
-                //todo Change from txt to Drawables(simple) w col filters..
+
                 case ("B"):
                 case ("G"):
                     runOnUiThread(() -> {
-                        //tv.setText(getResources().getString(R.string.Pawn));
-                        tv.setText("");
+                            //todo BGR overrides cols..
 
-                        //(ResourcesCompat.getDrawable(getResources(),R.drawable.tri,getTheme())).setColorFilter(TxtCol, PorterDuff.Mode.SRC_IN);
-                        ResourcesCompat.getDrawable(getResources(),R.drawable.pawn,getTheme()).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
-                        tv.setBackgroundResource(R.drawable.pawn);  //RunAfterTeamCols?
+                        if( UseIcons) {
+                            tv.setText("");
+                            ResourcesCompat.getDrawable(getResources(), R.drawable.pawn, getTheme()).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.DST_ATOP);
+                            tv.setBackgroundResource(R.drawable.pawn);  //RunAfterTeamCols?
+                        }else{
+                            tv.setText(getResources().getString(R.string.Pawn));
+                        }
 
                         CHM.put("Piece", getResources().getString(R.string.Pawn));
                         tv.setTag(CHM);
@@ -214,7 +220,12 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 case ("A"):
                 case ("H"):
                     runOnUiThread(() -> {
-                        tv.setText(LastRowPieces[Integer.parseInt(s.substring(1)) - 1]);
+                        if(UseIcons){
+                            ResourcesCompat.getDrawable(getResources(), LastRowPiecess[Integer.parseInt(s.substring(1)) - 1], getTheme()).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
+                        }else {
+                            tv.setText(LastRowPieces[Integer.parseInt(s.substring(1)) - 1]);
+                        }
+
                         CHM.put("Piece", LastRowPieces[Integer.parseInt(s.substring(1)) - 1]);
                         tv.setTag(CHM);
 
@@ -225,7 +236,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         }
 
 
-        ApplyTeamCols();
+        //ApplyTeamCols();
     }
 
     private void ApplyTeamCols(){
@@ -446,7 +457,14 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         TextView Tv2 = tv2, Tv1 = tv1;
         runOnUiThread(()->{
-            Tv2.setText(Tv1.getText()); Tv1.setText(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("ID"));
+            if (UseIcons){
+                Tv2.setBackground( Tv1.getBackground() );
+                //Tv1.setBackgroundColor();
+                Tv1.setBackgroundColor( Integer.parseInt( ((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg") )); //??
+            }else {
+                Tv2.setText(Tv1.getText());
+                Tv1.setText(DetailedView ? ((ConcurrentHashMap<String, String>) Tv1.getTag()).get("ID") : "");
+            }
             Tv1.setTextColor(Color.parseColor("#888888")); Tv2.setTextColor((int)T1[2]);
         });
 
@@ -562,7 +580,10 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         }
     }
 
-    private void AdvanceTurn(){ TurnsTillStalemate++; PlyrTurn=!PlyrTurn; MainLoop(); }
+    private void AdvanceTurn(){
+        //todo Check if pawn reaches end.. give option to promote piece via frag
+        TurnsTillStalemate++; PlyrTurn=!PlyrTurn; MainLoop();
+    }
 
     private void MainLoop(){
 

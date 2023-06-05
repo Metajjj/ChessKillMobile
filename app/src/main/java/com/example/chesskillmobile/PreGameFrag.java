@@ -155,14 +155,14 @@ public class PreGameFrag extends DialogFragment {
 
         String s = ((EditText)getActivity().findViewById(R.id.PregameWBcol)).getText()+"";
 
-        OCR.TeamChosen( Astats, Pstats, s, ((CheckBox)getActivity().findViewById(R.id.PregameCheckBox)).isChecked() );
+        OCR.TeamChosen( Astats, Pstats, s, ((CheckBox)getActivity().findViewById(R.id.PregameCheckBox)).isChecked(), ((CheckBox)getActivity().findViewById(R.id.PregameCheckBox2)).isChecked() );
         //new Game().TeamChosen(); //err accessing file
     }
 
     private Object[] Astats,Pstats;
 
     public interface OnCallbackReceived{
-        void TeamChosen(Object[] a,Object[] b, String s, Boolean dv);  //Sending back the TxtCol of white to determine who plays first
+        void TeamChosen(Object[] a,Object[] b, String s, Boolean dv, Boolean ic);  //Sending back the TxtCol of white to determine who plays first
     }
 
     OnCallbackReceived OCR; //Has to be casted in onAttach
