@@ -243,8 +243,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                             LayerDrawable ld = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.pieces_ai, getTheme()).getConstantState().newDrawable().mutate();
                             ((GradientDrawable) ld.getDrawable(0)).setColor(Integer.parseInt(CHM.get("OriginalBg")));
 
-                            for(int i=1;i<ld.getNumberOfLayers();i++){ //todo gain new LD(0) on MovePiece
-                                if( i%4 == s2%4){
+                            for(int i=1;i<ld.getNumberOfLayers();i++){
+                                //todo fix this
+                                if( i == s2){
                                     ld.getDrawable(i).setAlpha(255); ld.getDrawable(i).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
                                 }else{ ld.getDrawable(i).setAlpha(0); }
                             }
@@ -484,7 +485,10 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         TextView Tv2 = tv2, Tv1 = tv1;
         runOnUiThread(()->{
             if (UseIcons){
-                Tv2.setBackground( Tv1.getBackground() );
+                LayerDrawable LD = (LayerDrawable) Tv1.getBackground().getConstantState().newDrawable().mutate();
+                LD.getDrawable(0).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv2.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC);
+
+                Tv2.setBackground( LD );
                 //Tv1.setBackgroundColor();
                 Tv1.setBackgroundColor( Integer.parseInt( ((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg") )); //??
             }else {
