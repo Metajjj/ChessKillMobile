@@ -2,10 +2,14 @@ package com.example.chesskillmobile;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
@@ -205,8 +210,13 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
                         if( UseIcons) {
                             tv.setText("");
-                            ResourcesCompat.getDrawable(getResources(), R.drawable.pawn, getTheme()).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.DST_ATOP);
-                            tv.setBackgroundResource(R.drawable.pawn);  //RunAfterTeamCols?
+                            //ResourcesCompat.getDrawable(getResources(), R.drawable.pawn, getTheme()).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
+                            //((LayerDrawable)(ResourcesCompat.getDrawable(getResources(), R.drawable.pawn, getTheme()))).setDrawable(0, R.drawable.bishop );
+                            //System.out.println("TVcol: "+ Integer.toHexString(tv.getCurrentTextColor()) );
+                            //tv.setBackgroundResource(R.drawable.pawn);  //RunAfterTeamCols?
+
+                            tv.setBackgroundResource(R.drawable.pieces_ai);
+
                         }else{
                             tv.setText(getResources().getString(R.string.Pawn));
                         }
@@ -604,6 +614,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
             new Thread(()-> {
                 try {
+                    runOnUiThread(()->{
+                        Toast.makeText(context,"Returning to MainMenu in 30s!",Toast.LENGTH_LONG).show();
+                    });
                     for (int i = 30; i > 0; i--) {
                         Thread.sleep(1000);
                         if(i==10){ runOnUiThread(()->{
