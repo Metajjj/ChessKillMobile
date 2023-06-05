@@ -8,8 +8,11 @@ import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -211,11 +214,21 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                         if( UseIcons) {
                             tv.setText("");
                             //ResourcesCompat.getDrawable(getResources(), R.drawable.pawn, getTheme()).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
-                            //((LayerDrawable)(ResourcesCompat.getDrawable(getResources(), R.drawable.pawn, getTheme()))).setDrawable(0, R.drawable.bishop );
-                            //System.out.println("TVcol: "+ Integer.toHexString(tv.getCurrentTextColor()) );
-                            //tv.setBackgroundResource(R.drawable.pawn);  //RunAfterTeamCols?
+                            //ResourcesCompat innately bitmap drawable.. cast to layer = err
+                            LayerDrawable LD = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.pieces_ai, getTheme()),
+                            ld = (LayerDrawable) LD.getConstantState().newDrawable().mutate();
+                                //create a copy of drawable, make it new.. make it mutate so doesnt affect orig
 
-                            tv.setBackgroundResource(R.drawable.pieces_ai);
+                            ((GradientDrawable) ld.getDrawable(0)).setColor(Color.parseColor("#FF0000FF"));
+
+
+
+                            GradientDrawable shape = (GradientDrawable) LD.getDrawable(0);
+                            shape.setColor(Color.parseColor("#FF00FF00"));
+                            //BitmapDrawable bd = (BitmapDrawable) LD.getDrawable(1);
+                            //bd.setAlpha(1); //is 0-255 not 0.0-1.0
+
+                            tv.setBackground( ( RecordOfTiles.indexOf(tv) == 10 ) ? ld : LD);
 
                         }else{
                             tv.setText(getResources().getString(R.string.Pawn));

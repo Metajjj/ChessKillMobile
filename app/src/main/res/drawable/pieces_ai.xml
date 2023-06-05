@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <layer-list>
@@ -7,19 +8,37 @@
         </layer-list>
     </item>
 
-    <item android:state_pressed="false">
-        <layer-list>
-            <item>
-                <!--todo replace col w tile col -->
-                <shape android:shape="rectangle"><solid android:color="#FF0000"/> </shape> </item>
-            <item>
-                <bitmap android:alpha="1" android:src="@drawable/pawn" android:tint="@color/white"/>
-            </item>
-        </layer-list>
+    <item android:state_pressed="false"> -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/PieceBg">
+        <!--todo replace col w tile col -->
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF"/>
+        </shape>
     </item>
+    <item android:id="@+id/PiecePawn">
+        <bitmap android:alpha="1" android:src="@drawable/pawn" android:tint="#FF0000"/>
+    </item>
+    <item android:id="@+id/PieceRook">
+        <bitmap android:alpha="0" android:src="@drawable/rook" android:tint="#FF7F00"/>
+    </item>
+    <item android:id="@+id/PieceKnight">
+        <bitmap android:alpha="0" android:src="@drawable/knight" android:tint="#FFFF00"/>
+    </item>
+    <item android:id="@+id/PieceBishop">
+        <bitmap android:alpha="0" android:src="@drawable/bishop" android:tint="#00FF00"/>
+    </item>
+    <item android:id="@+id/PieceKing">
+        <bitmap android:alpha="0" android:src="@drawable/king" android:tint="#0000FF"/>
+    </item>
+    <item android:id="@+id/PieceQueen">
+        <bitmap android:alpha="0" android:src="@drawable/queen" android:tint="#7F00FF"/>
+    </item>
+</layer-list>
+    <!--/item>
 
 
-    <!--item>
+    <item>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
@@ -47,4 +66,4 @@
 
 </layer-list>
     </item-->
-</selector>
+<!--</selector>-->
