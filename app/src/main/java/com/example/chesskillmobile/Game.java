@@ -190,7 +190,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         //System.out.println("S P..");
         //IsMainThread(); //isnt main thread
         String[] LastRowPieces = new String[]{getResources().getString(R.string.Rook), getResources().getString(R.string.Knight), getResources().getString(R.string.Bishop), getResources().getString(R.string.King), getResources().getString(R.string.Queen), getResources().getString(R.string.Bishop), getResources().getString(R.string.Knight), getResources().getString(R.string.Rook)};
-        Integer[] LastRowPiecess = new Integer[]{R.drawable.rook,R.drawable.knight,R.drawable.bishop,R.drawable.king,R.drawable.queen,R.drawable.bishop,R.drawable.knight,R.drawable.rook};
 
 
 
@@ -209,35 +208,24 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 case ("B"):
                 case ("G"):
                     runOnUiThread(() -> {
-                            //todo BGR overrides cols..
-
                         if( UseIcons) {
                             tv.setText("");
                             //ResourcesCompat.getDrawable(getResources(), R.drawable.pawn, getTheme()).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
                             //ResourcesCompat innately bitmap drawable.. cast to layer = err
-                            LayerDrawable LD = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.pieces_ai, getTheme()),
-                            ld = (LayerDrawable) LD.getConstantState().newDrawable().mutate();
+                            LayerDrawable ld = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.pieces_ai, getTheme()).getConstantState().newDrawable().mutate();
                                 //create a copy of drawable, make it new.. make it mutate so doesnt affect orig
 
-                            ((GradientDrawable) ld.getDrawable(0)).setColor(Color.parseColor("#FF0000FF"));
+                            ((GradientDrawable) ld.getDrawable(0)).setColor(Integer.parseInt(CHM.get("OriginalBg")));
+                            ld.getDrawable(1).setAlpha(255); ld.getDrawable(1).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
+                                        //alpha is % by xml alpha value? 0-255
 
-                            if(RecordOfTiles.indexOf(tv) == 12){
-                                ((GradientDrawable) ld.getDrawable(0)).setColor(Color.parseColor("#FFFF7F00"));
+                            for(int i=2;i<ld.getNumberOfLayers();i++){
+                                ld.getDrawable(i).setAlpha(0);
                             }
-                            //Constantly creates from orig.. will never affect others
 
+                            tv.setBackground(ld);
 
-
-                            GradientDrawable shape = (GradientDrawable) LD.getDrawable(0);
-                            shape.setColor(Color.parseColor("#FF00FF00"));
-                            //BitmapDrawable bd = (BitmapDrawable) LD.getDrawable(1);
-                            //bd.setAlpha(1); //is 0-255 not 0.0-1.0
-
-                            tv.setBackground( ( RecordOfTiles.indexOf(tv) == 10 || RecordOfTiles.indexOf(tv) == 12 ) ? ld : LD);
-
-                        }else{
-                            tv.setText(getResources().getString(R.string.Pawn));
-                        }
+                        }else{ tv.setText(getResources().getString(R.string.Pawn)); }
 
                         CHM.put("Piece", getResources().getString(R.string.Pawn));
                         tv.setTag(CHM);
@@ -247,14 +235,24 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     break;
                 case ("A"):
                 case ("H"):
+                    int s2 = Integer.parseInt(s.substring(1));
                     runOnUiThread(() -> {
                         if(UseIcons){
-                            ResourcesCompat.getDrawable(getResources(), LastRowPiecess[Integer.parseInt(s.substring(1)) - 1], getTheme()).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
-                        }else {
-                            tv.setText(LastRowPieces[Integer.parseInt(s.substring(1)) - 1]);
-                        }
+                            tv.setText("");
 
-                        CHM.put("Piece", LastRowPieces[Integer.parseInt(s.substring(1)) - 1]);
+                            LayerDrawable ld = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.pieces_ai, getTheme()).getConstantState().newDrawable().mutate();
+                            ((GradientDrawable) ld.getDrawable(0)).setColor(Integer.parseInt(CHM.get("OriginalBg")));
+
+                            for(int i=1;i<ld.getNumberOfLayers();i++){ //todo gain new LD(0) on MovePiece
+                                if( i%4 == s2%4){
+                                    ld.getDrawable(i).setAlpha(255); ld.getDrawable(i).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
+                                }else{ ld.getDrawable(i).setAlpha(0); }
+                            }
+
+                            tv.setBackground(ld);
+                        }else { tv.setText(LastRowPieces[s2 - 1]); }
+
+                        CHM.put("Piece", LastRowPieces[s2 - 1]);
                         tv.setTag(CHM);
 
                         RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);

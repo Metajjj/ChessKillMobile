@@ -16,23 +16,23 @@
             <solid android:color="#FFFFFF"/>
         </shape>
     </item>
-    <item android:id="@+id/PiecePawn">
+    <item>
         <bitmap android:alpha="1" android:src="@drawable/pawn" android:tint="#FF0000"/>
     </item>
-    <item android:id="@+id/PieceRook">
-        <bitmap android:alpha="0" android:src="@drawable/rook" android:tint="#FF7F00"/>
+    <item>
+        <bitmap android:alpha="1" android:src="@drawable/rook" android:tint="#FF7F00"/>
     </item>
-    <item android:id="@+id/PieceKnight">
-        <bitmap android:alpha="0" android:src="@drawable/knight" android:tint="#FFFF00"/>
+    <item>
+        <bitmap android:alpha="1" android:src="@drawable/knight" android:tint="#FFFF00"/>
     </item>
-    <item android:id="@+id/PieceBishop">
-        <bitmap android:alpha="0" android:src="@drawable/bishop" android:tint="#00FF00"/>
+    <item>
+        <bitmap android:alpha="1" android:src="@drawable/bishop" android:tint="#00FF00"/>
     </item>
-    <item android:id="@+id/PieceKing">
-        <bitmap android:alpha="0" android:src="@drawable/king" android:tint="#0000FF"/>
+    <item>
+        <bitmap android:alpha="1" android:src="@drawable/king" android:tint="#0000FF"/>
     </item>
-    <item android:id="@+id/PieceQueen">
-        <bitmap android:alpha="0" android:src="@drawable/queen" android:tint="#7F00FF"/>
+    <item>
+        <bitmap android:alpha="1" android:src="@drawable/queen" android:tint="#7F00FF"/>
     </item>
 </layer-list>
     <!--/item>
