@@ -31,6 +31,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
+import org.w3c.dom.Text;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -98,16 +100,16 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
     //To run when frag closes.. required via implementation
     @Override
-    public void TeamChosen(Object[] Astats, Object[] Pstats, String s, Boolean dv, Boolean icons) {
+    public void TeamChosen(Object[] Astats, Object[] Pstats, String s, Boolean dv, Boolean icons, Boolean ca) {
         //Play with data from Frag
-        AiStats=Astats; PlStats=Pstats; DetailedView=dv; UseIcons=icons;
+        AiStats=Astats; PlStats=Pstats; DetailedView=dv; UseIcons=icons; CultivateAI=ca;
 
         PlyrTurn = (PlStats[0].equals( Color.parseColor(s) )); //WORKS
 
         TeamSelected();
     }
 
-    private boolean DetailedView=true, UseIcons=false;
+    private boolean DetailedView=true, UseIcons=false, CultivateAI=false;
 
     private void IsMainThread(){ System.out.println( Thread.currentThread() == Looper.getMainLooper().getThread() ); }
 
@@ -129,10 +131,10 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         //for (Object o : PlStats) {System.out.println("Pl: " + o.toString());} for (Object o : AiStats){ System.out.println("Ai: " + o.toString());}
 
         //Add pieces..
-        try { th.join(); //join stops curr (calling) thread till the ref/var thread process is complete..
-            th = new Thread(()->{SetupPieces();});
+        try {  //join stops curr (calling) thread till the ref/var thread process is complete..
+            th = new Thread(()->{SetupPieces(); MainLoop();});
             th.start();
-        } catch (Exception e) { System.err.println(e); }
+        } catch (Exception e) { System.err.println("Line 138\n"+e); }
     }
 
     private TextView SetupTxtVw(String ID,int P,int bg){
@@ -180,7 +182,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             }
             Collections.reverse(bgcols);
             runOnUiThread(()->{ TL.addView(TR); });
-            try{ Thread.sleep(20); } catch (Exception e){}
+            try{ Thread.sleep(20); } catch (Exception e){System.err.println("Line 186\n"+e);}
         }
     }
 
@@ -260,9 +262,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     break;
             }
         }
-
-
-        //ApplyTeamCols();
+        System.out.println("SP");
     }
 
     private void ApplyTeamCols(){
@@ -292,7 +292,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     }
 
     Object[] TileOne = null; // {Tag/ID, Tag/PieceName, Stats/Col}
-    private String c=null;
+    private Object c=null,cc=null;
 
     //Handle moving pieces and stuff (only player can click button)
     private void TileSelected(View v){
@@ -301,18 +301,26 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         //Make selected T1 lose alpha??
 
         if(TileOne != null){
-            //Deal wiht tile2
+            TextView C = (TextView)c;
+            if(UseIcons){
+                LayerDrawable CC = (LayerDrawable) cc;
+                C.setBackground(CC);
+            }else{
+                C.setTextColor((Integer) PlStats[0]);
+                C.setBackgroundColor(Integer.parseInt(((ConcurrentHashMap<String, String>) C.getTag()).get("OriginalBg")));
+            }
+
+            //Deal with tile2
             Object[] TileTwo = new Object[]{((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), ((ConcurrentHashMap<String, String>) tv.getTag()).get("Piece"), tv.getCurrentTextColor()};
 
                 //Make sure isnt targeting own piece.. then check if can move to tileTwo (method via reflection string)
 
 
             try {
-
                 if (! TileOne[2].equals(TileTwo[2]) && (boolean) this.getClass().getDeclaredMethod(TileOne[1]+"", Object[].class, Object[].class).invoke(this, TileOne, TileTwo)) {
                     MovePiece(TileOne,TileTwo);
 
-                    Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nAllowed move!",Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nAllowed move!",Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nInvalid move!",Toast.LENGTH_SHORT).show();
                 }
@@ -328,13 +336,23 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             TileOne=null;
         } else if( tv.getCurrentTextColor() == (int)PlStats[0]
                 ||
-                 tv.getCurrentTextColor() == (int)PlStats[0] ) {
-            //Is player's own piece
+                 tv.getCurrentTextColor() == (int)AiStats[0] ) {
+            //Is a piece
 
             TileOne = new Object[]{((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), ((ConcurrentHashMap<String, String>) tv.getTag()).get("Piece"), tv.getCurrentTextColor()};
 
-            Toast.makeText(this,TileOne[0]+" ("+TileOne[1]+") selected!",Toast.LENGTH_SHORT).show();
-
+            //Toast.makeText(this,TileOne[0]+" ("+TileOne[1]+") selected!",Toast.LENGTH_SHORT).show();
+                //Visibly shows tile selected
+            c= tv;
+            if(UseIcons){
+                LayerDrawable LD = (LayerDrawable) tv.getBackground();
+                cc = LD.getConstantState().newDrawable().mutate();
+                LD.getDrawable(0).setColorFilter((Integer) PlStats[0], PorterDuff.Mode.SRC);
+                LD.getDrawable(1).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) tv.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
+            }else{
+                tv.setBackgroundColor(Color.parseColor("#"+Integer.toHexString(tv.getCurrentTextColor()).substring(2) ));
+                tv.setTextColor(Integer.parseInt(((ConcurrentHashMap<String, String>) tv.getTag()).get("OriginalBg")));
+            }
         }
     }
 
@@ -463,17 +481,17 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         TextView tv1=new TextView(this),tv2 =new TextView(this);
         //ConcurrentHashMap<String,String> CHM = new ConcurrentHashMap<>();
 
-        for(int i=0 ;i < ((TableLayout)findViewById(R.id.GameTable)).getChildCount(); i++) {
-            TableRow tr = (TableRow) ((TableLayout) findViewById(R.id.GameTable)).getChildAt(i);
-            for (int j = 0; j < tr.getChildCount(); j++) {
-                TextView tv = (TextView) tr.getChildAt(j);
+        for(TextView tv : RecordOfTiles) {
 
-                if ( ((ConcurrentHashMap<String,String>)tv.getTag()).get("ID").equals(T1[0]) ){ tv1 = tv; }
-                else if ( ((ConcurrentHashMap<String,String>)tv.getTag()).get("ID").equals(T2[0]) ){ tv2=tv; }
+            if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T1[0])) {
+                tv1 = tv;
+            } else if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T2[0])) {
+                tv2 = tv;
             }
+
         }
 
-        if (tv2.getCurrentTextColor() == Color.parseColor("#888888")) { TurnsTillStalemate=0; }
+        if (tv2.getCurrentTextColor() != Color.parseColor("#888888")) { TurnsTillStalemate=0; }
 
         //CHM = (ConcurrentHashMap<String, String>) tv1.getTag();
         ((ConcurrentHashMap<String, String>) tv2.getTag()).put("Piece", ((ConcurrentHashMap<String, String>) tv1.getTag()).get("Piece") );
@@ -483,6 +501,35 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         TextView Tv2 = tv2, Tv1 = tv1;
         runOnUiThread(()->{
+//            //Visual show AI selected
+//            if (Tv1.getCurrentTextColor()==(int)AiStats[0]) {
+//                System.out.println("AI sel");
+//                cc = null; c=Tv1;
+//                if(UseIcons){
+//                    LayerDrawable LD = (LayerDrawable) Tv1.getBackground();
+//                    cc = LD.getConstantState().newDrawable().mutate();
+//                    LD.getDrawable(0).setColorFilter((Integer) PlStats[0], PorterDuff.Mode.SRC);
+//                    LD.getDrawable(1).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
+//                }else{
+//                    Tv1.setBackgroundColor(Color.parseColor("#"+Integer.toHexString(Tv1.getCurrentTextColor()).substring(2) ));
+//                    Tv1.setTextColor(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")));
+//                }
+//                new Handler().postDelayed(() -> {
+//                    TextView C = (TextView) c;
+//                    if(UseIcons){
+//                        LayerDrawable CC = (LayerDrawable) cc;
+//                        C.setBackground(CC);
+//                    }else{
+//                        C.setTextColor((Integer) AiStats[0]);
+//                        C.setBackgroundColor(Integer.parseInt(((ConcurrentHashMap<String, String>) C.getTag()).get("OriginalBg")));
+//                    }
+//                    System.out.println("AI rev");
+//                }, 800);
+//            }
+//            //Visual show AI selected
+
+            Toast.makeText(context,T1[0]+" => "+T2[0]+"\n("+T1[1]+")",Toast.LENGTH_SHORT).show();
+
             if (UseIcons){
                 LayerDrawable LD = (LayerDrawable) Tv1.getBackground().getConstantState().newDrawable().mutate();
                 LD.getDrawable(0).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv2.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC);
@@ -511,6 +558,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         GameMoveRecord += ((ConcurrentHashMap<String, String>) tv1.getTag()).get("ID")+((ConcurrentHashMap<String, String>) tv2.getTag()).get("ID");
 
+
         AdvanceTurn();
     }
 
@@ -518,20 +566,21 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
     private ArrayList<TextView> RecordOfTiles = new ArrayList<>();
 
-    private void PossibleMovesAllowed(){
+    private void PossibleMovesAllowed(int AiCol){
         try {
+            Looper.prepare();
             //Using .join as alt Async method..
 
-            th = new Thread(() -> {
+            //th = new Thread(() -> {
                 ConcurrentHashMap<Object[],ArrayList<Object[]>> PMA = new ConcurrentHashMap<>();
                     //Need alternative for.. multiple of same key
                 //Stores possible moves allowed
 
                 for(TextView tv : RecordOfTiles){
-                    if (tv.getCurrentTextColor() == (int)AiStats[0]){
+                    if (tv.getCurrentTextColor() == AiCol){
                         //Check for each.. AI piece
                         for (TextView tv2 : RecordOfTiles) {
-                            if( tv2.getCurrentTextColor() == (int) AiStats[0]){ continue; }
+                            if( tv2.getCurrentTextColor() == AiCol){ continue; }
                             //Skip if same col
                             Object[] T1 = new Object[]{
                                     ((ConcurrentHashMap<String,String>)tv.getTag()).get("ID"),
@@ -551,6 +600,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                                 Res = (Boolean) this.getClass().getDeclaredMethod(T1[1] + "", Object[].class, Object[].class).invoke(this, T1, T2);
                             } catch (Exception e){
                                 System.err.println("ReflectionInvoke Err: "+e);
+
+                                Res=false;
                             }
 
                             if(Res){
@@ -560,22 +611,29 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                         }
                     }
                 }
-                IsMoveSafe(PMA);
-            });
-            th.start();
+                //System.out.println("PMA: "+PMA);
+                if (AiCol == (int)AiStats[0]) {IsMoveSafe(PMA);} //If ai check if move safe..
+                else{
+                    //Else.. is Plyr/CultivateAI
+                    //Pick a random and move.. run IsMoveSafe.. overload it for multi-use repurpose
+                    IsMoveSafe(PMA,false);
+                }
+            //}); th.start();
 
         }catch (Exception e){ System.err.println("PMA ERR: "+e); }
 
     }
 
     private void IsMoveSafe(ConcurrentHashMap<Object[],ArrayList<Object[]>> PMA){
+        IsMoveSafe(PMA, true);
+    }
+    private void IsMoveSafe(ConcurrentHashMap<Object[],ArrayList<Object[]>> PMA, Boolean makeSafe){
         //Pick random move..
         String PossibleMoves="";
         for (Map.Entry<Object[],ArrayList<Object[]>> kvp : PMA.entrySet()){ //Foreach entry in PMA
             for(Object[] o : kvp.getValue()){ //foreach value in arrayList
                 PossibleMoves += kvp.getKey()[0].toString() + o[0].toString();
             }
-            //PossibleMoves +=
         }
 
         String ChosenMove="";
@@ -587,14 +645,15 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 AiStats[1]=true; //Make king dead true.. auto lose
                 MainLoop(); return;
             }
-                            //Divide PM into sets of 4 (A1=>A2) .. pick a group .. *4 to get where start of it is in PM , Len: 4
+                //Divide PM into sets of 4 (A1=>A2) .. pick a group .. *4 to get where start of it is in PM , Len: 4
 
             int sb = (int) (Math.floor(Math.random()*PossibleMoves.length()/4 )) *4;
             ChosenMove = PossibleMoves.substring(sb, sb+4);
 
             //System.out.println("CM: "+ChosenMove);
 
-            MoveAllowed = InteractBrainFile(getString(R.string.Read),ChosenMove); //Check if move is recorded..
+            MoveAllowed = makeSafe ? InteractBrainFile(getString(R.string.Read),ChosenMove) : true;
+                                        //Check if move is recorded..
                 //False if shouldn't make the move
         }
 
@@ -603,6 +662,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             for(Object[] o : kvp.getValue()) {
                 //Have to find randomly picked tile(s) from all PMA.. then make move
                 if (kvp.getKey()[0].equals(ChosenMove.substring(0,2)) && o[0].equals(ChosenMove.substring(2,4))){
+                    //System.out.println("CM: "+ChosenMove);
+
+                    //todo SetUpVisual here??
                     MovePiece(kvp.getKey(),o);
                 }
             }
@@ -611,17 +673,29 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
     private void AdvanceTurn(){
         //todo Check if pawn reaches end.. give option to promote piece via frag
-        TurnsTillStalemate++; PlyrTurn=!PlyrTurn; MainLoop();
+        TurnsTillStalemate++; PlyrTurn=!PlyrTurn;
+
+        new Thread(()->{
+            try{ Thread.sleep(600); } catch (Exception e){System.err.println("Line 676\n"+e);}
+            runOnUiThread(this::MainLoop);
+        }).start();
+        //MainLoop();
     }
 
     private void MainLoop(){
+
+        //todo MainLoop runs before SetupPieces
+        System.out.println("GMR: "+GameMoveRecord);
+
 
         //TurnsTillStalemate+=200;
         if( AiStats[1].equals(true) || PlStats[1].equals(true) || TurnsTillStalemate>=200){
             Toast.makeText(context, (TurnsTillStalemate<200 ? ( (boolean)AiStats[1] ? "Player" : "AI" ) +" Wins!" : "TIE/DRAW!"), Toast.LENGTH_LONG).show();
 
-            //Write res to WLR file..
-            WriteResWLR();
+            if(! CultivateAI) {
+                //Write res to WLR file..
+                WriteResWLR();
+            }
 
             //write failure if ai loss to InteractBrainFile..
             if (AiStats[1].equals(true)) {
@@ -658,12 +732,26 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             //Disable onclicks..
             for(TextView tv : RecordOfTiles){ tv.setOnClickListener(null); }
 
-            th = new Thread(()->{ PossibleMovesAllowed();});
-            th.start();
+            th = new Thread(()->{ PossibleMovesAllowed((Integer) AiStats[0]); });
+            try { th.join(); //join.. makes curr thread wait till the thread calling join dies.. is AWAIT
+                th.start(); } catch (Exception e) { System.err.println("Line 734\n"+e); }
             //PossibleMovesAllowed();
         }else{
             //Enable onclicks..
-            for(TextView tv : RecordOfTiles){ tv.setOnClickListener(this::TileSelected); }
+            //CultivateAI=false; //Disabling cultivate fn
+             //todo Cultivate AI option? PMA vs PMA.. messes w team col, logic errs
+            if(! CultivateAI){
+                for(TextView tv : RecordOfTiles){ tv.setOnClickListener(this::TileSelected); } }
+            else{
+                //Changing col changes team selected?
+                th = new Thread(()->{
+                    //try{ Thread.sleep(1400); } catch (Exception e){}
+                    //Object o = PlStats[0]; PlStats[0] = AiStats[0]; AiStats[0]=o;
+                    System.out.println("pma..");
+                    PossibleMovesAllowed((Integer) PlStats[0]);
+
+                }); th.start();
+            }
         }
     }
     private boolean InteractBrainFile(String IOmode, @Nullable String Movement){

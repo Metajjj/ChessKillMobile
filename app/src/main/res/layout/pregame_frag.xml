@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" android:id="@+id/PregameBg"
-    android:background="#111111">
+    android:background="#111111"
+    >
 
     <TextView
         android:id="@+id/PregameTitle"
@@ -104,21 +105,39 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <CheckBox
-        android:checked="true"
         android:id="@+id/PregameCheckBox2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="150dp"
+        android:layout_marginStart="60dp"
         android:layout_marginTop="40dp"
-        android:layout_marginEnd="150dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
         android:background="#555555"
+        android:checked="true"
         android:text="Use Icons?"
         android:textColor="#ffffff"
         android:textSize="15sp"
         app:layout_constraintBottom_toTopOf="@+id/PregameWB"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/PregameCheckBox3"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/PregameTitle" />
+
+    <CheckBox
+        android:id="@+id/PregameCheckBox3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="60dp"
+        android:layout_marginBottom="10dp"
+        android:background="#555555"
+        android:checked="false"
+        android:text="Cultivate AI?"
+        android:textColor="#ffffff"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@+id/PregameWB"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/PregameCheckBox2"
         app:layout_constraintTop_toBottomOf="@+id/PregameTitle" />
 
     <TextView
@@ -129,7 +148,7 @@
         android:background="#666"
         android:padding="5dp"
         android:gravity="center"
-        android:text="Edit the hex codes to change col!"
+        android:text="Edit the hex codes to change col!\n(#RRGGBB) 0-9-A-F(0-16)"
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="25dp"
