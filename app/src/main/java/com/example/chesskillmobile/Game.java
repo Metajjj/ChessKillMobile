@@ -196,8 +196,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         //ApplyTeamCols();
         try{ th.start(); th.join(); } catch (Exception e){System.err.println("Line 197: "+e);}
 
-        System.out.println("Check 0:63"+ RecordOfTiles.get(0).getCurrentTextColor()+":"+RecordOfTiles.get(63).getCurrentTextColor()); //Solved.. runOnUiThread.. unnecessary extra
-
         //System.out.println("S P..");
         //IsMainThread(); //isnt main thread
         //String[] LastRowPieces = new String[]{getResources().getString(R.string.Rook), getResources().getString(R.string.Knight), getResources().getString(R.string.Bishop), getResources().getString(R.string.King), getResources().getString(R.string.Queen), getResources().getString(R.string.Bishop), getResources().getString(R.string.Knight), getResources().getString(R.string.Rook)};
