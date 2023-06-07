@@ -304,7 +304,10 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     private TextView c=null; private LayerDrawable cc=null;
 
     //Handle moving pieces and stuff (only player can click button)
+
     private void TileSelected(View v){
+        if(!PlyrTurn){return;}
+            //avoid select IMD after moving a piece and is AI turn.. hander delay in AdvancedTurn
         TextView tv = (TextView) v;
 
         //Make selected T1 lose alpha??
@@ -655,8 +658,22 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                         runOnUiThread(()->{ AiShowSelected(kvp.getKey(),o); });
                         //Visual show AI selected - MovePiece inside on delay
                     }else {
-                        System.out.println("Pl MP :"+ChosenMove);
-                        MovePiece(kvp.getKey(),o);
+                        TextView tv1=null,tv2=null;
+                        for (TextView tv : RecordOfTiles ) {
+                            tv1 = (((ConcurrentHashMap<String,String>)tv.getTag()).get("ID").equals(kvp.getKey()[0])) ? tv : tv1;
+                            tv2 = (((ConcurrentHashMap<String,String>)tv.getTag()).get("ID").equals(o[0])) ? tv : tv2;
+                        } //todo streamline AiSelected => TileSelected ???
+
+                        TextView Tv1=tv1, Tv2=tv2;
+                        runOnUiThread(()->{
+                            TileSelected(Tv1);
+
+                            new Handler().postDelayed(()->{
+                                TileSelected(Tv2);
+                            },1800);
+                        });
+
+
                     }
 
                 }
