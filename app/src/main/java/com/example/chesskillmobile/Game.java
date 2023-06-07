@@ -186,12 +186,16 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         }
     }
 
+    private ArrayList<String> LastRowPieces; //Need global for access elsewhere
+
     private void SetupPieces(){
         ApplyTeamCols();
 
         //System.out.println("S P..");
         //IsMainThread(); //isnt main thread
-        String[] LastRowPieces = new String[]{getResources().getString(R.string.Rook), getResources().getString(R.string.Knight), getResources().getString(R.string.Bishop), getResources().getString(R.string.King), getResources().getString(R.string.Queen), getResources().getString(R.string.Bishop), getResources().getString(R.string.Knight), getResources().getString(R.string.Rook)};
+        //String[] LastRowPieces = new String[]{getResources().getString(R.string.Rook), getResources().getString(R.string.Knight), getResources().getString(R.string.Bishop), getResources().getString(R.string.King), getResources().getString(R.string.Queen), getResources().getString(R.string.Bishop), getResources().getString(R.string.Knight), getResources().getString(R.string.Rook)};
+        LastRowPieces = new ArrayList<>(Arrays.asList(getString(R.string.Rook), getString(R.string.Knight), getString(R.string.Bishop), getString(R.string.King), getString(R.string.Queen), getString(R.string.Bishop), getString(R.string.Knight), getString(R.string.Rook)));
+            //Have to assign here else context err
 
 
 
@@ -252,9 +256,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                             }
 
                             tv.setBackground(ld);
-                        }else { tv.setText(LastRowPieces[s2 - 1]); }
+                        }else { tv.setText(LastRowPieces.get(s2 - 1)); }
 
-                        CHM.put("Piece", LastRowPieces[s2 - 1]);
+                        CHM.put("Piece", LastRowPieces.get(s2 - 1) );
                         tv.setTag(CHM);
 
                         RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);
@@ -262,7 +266,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     break;
             }
         }
-        System.out.println("SP");
+        //System.out.println("SP");
+        LastRowPieces.add(0,""); LastRowPieces.add(1,getString(R.string.Pawn));
+        //MainLoop();
     }
 
     private void ApplyTeamCols(){
@@ -652,7 +658,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             else if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T2[0])) { Tv2 = tv; }
         }
 
-
+        //todo said knight, picked king.. G2F2B3C3G3F3 A4C5
 
         if (Tv1.getCurrentTextColor()==(int)AiStats[0]) {
             c = Tv1;
@@ -662,7 +668,10 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 LayerDrawable LD = (LayerDrawable) Tv1.getBackground();
                 cc = (LayerDrawable) LD.getConstantState().newDrawable().mutate();
                 LD.getDrawable(0).setColorFilter((Integer) AiStats[0], PorterDuff.Mode.SRC);
-                LD.getDrawable(1).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
+                System.out.println(LastRowPieces+" ["+T1[1]+"] : "+LastRowPieces.indexOf(T1[1].toString()));
+                LD.getDrawable(
+                        LastRowPieces.indexOf(T1[1].toString())
+                ).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
                     //todo Err for Drawable.. link to last row pieces ?
             }else{
                 Tv1.setBackgroundColor(Color.parseColor("#"+Integer.toHexString(Tv1.getCurrentTextColor()).substring(2) ));
