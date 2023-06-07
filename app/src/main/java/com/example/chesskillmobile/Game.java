@@ -39,6 +39,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -256,9 +257,10 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                             }
 
                             tv.setBackground(ld);
-                        }else { tv.setText(LastRowPieces.get(s2 - 1)); }
+                        }else { tv.setText(LastRowPieces.get(s2 + 1)); }
 
-                        CHM.put("Piece", LastRowPieces.get(s2 - 1) );
+                        CHM.put("Piece", LastRowPieces.get(s2 +1) ); System.out.println(s.charAt(1)+":"+LastRowPieces.get(s2 - 1));
+                                        //todo Runs after switch statement.. before switch statement???????
                         tv.setTag(CHM);
 
                         RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);
@@ -266,7 +268,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     break;
             }
         }
-        //System.out.println("SP");
+        System.out.println("SP");           //todo SP prints before ML.. ML before foreach .. foreach after LRP.add()..
         LastRowPieces.add(0,""); LastRowPieces.add(1,getString(R.string.Pawn));
         //MainLoop();
     }
@@ -629,8 +631,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             int sb = (int) (Math.floor(Math.random()*PossibleMoves.length()/4 )) *4;
             ChosenMove = PossibleMoves.substring(sb, sb+4);
 
-            //System.out.println("CM: "+ChosenMove);
-
             MoveAllowed = makeSafe ? InteractBrainFile(getString(R.string.Read),ChosenMove) : true;
                                         //Check if move is recorded..
                 //False if shouldn't make the move
@@ -641,10 +641,11 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             for(Object[] o : kvp.getValue()) {
                 //Have to find randomly picked tile(s) from all PMA.. then make move
                 if (kvp.getKey()[0].equals(ChosenMove.substring(0,2)) && o[0].equals(ChosenMove.substring(2,4))){
-                    //System.out.println("CM: "+ChosenMove);
+                    System.out.println("CM: "+ChosenMove +"\nT1:"+kvp.getKey()[0]+" T2:"+o[0]);
 
                     //todo SetUpVisual here??
                     runOnUiThread(()->{ AiShowSelected(kvp.getKey(),o); });
+                     //return;
                     //Visual show AI selected  MovePiece inside on delay
                 }
             }
@@ -652,13 +653,19 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     }
 
     private void AiShowSelected(Object[] T1, Object[]T2){
-        TextView Tv1 = null, Tv2=null;
+        TextView Tv1 = new TextView(context), Tv2= new TextView(this);
         for(TextView tv : RecordOfTiles) {
-            if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T1[0])) { Tv1 = tv; }
-            else if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T2[0])) { Tv2 = tv; }
+            //works.. when u print out the one u want ?
+            if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T1[0].toString())) { Tv1 = tv; }
+            else if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T2[0].toString())) { Tv2 = tv; }
         }
 
         //todo said knight, picked king.. G2F2B3C3G3F3 A4C5
+        System.out.println(MessageFormat.format(
+                "T1: {0} : {1} | Tv1: {0} : {1}\nT2: {0} : {1} | Tv2: {0} : {1}",
+                T1[0],T1[1] , ((ConcurrentHashMap<String, String>) Tv1.getTag()).get("ID"),((ConcurrentHashMap<String, String>) Tv1.getTag()).get("Piece"),
+                T2[0],T2[1] , ((ConcurrentHashMap<String, String>) Tv2.getTag()).get("ID"),((ConcurrentHashMap<String, String>) Tv2.getTag()).get("Piece")
+        ));
 
         if (Tv1.getCurrentTextColor()==(int)AiStats[0]) {
             c = Tv1;
