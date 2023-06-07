@@ -275,7 +275,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     }
 
     private void ApplyTeamCols(){
-        System.out.println("ATC");
+        //System.out.println("ATC");
         for(TextView tv : RecordOfTiles) {
             String tag = ((ConcurrentHashMap<String, String>) tv.getTag()).get("ID");
             switch (tag.substring(0, 1)) {
@@ -296,8 +296,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             }
 
         }
-        System.out.println(AiStats[0]+" AI : PL "+PlStats[0]); //Isnt applying txtCols??
-        System.out.println(( PlyrTurn ? "Ply 1st" : "Ai 1st" )); //works
+        //System.out.println(AiStats[0]+" AI : PL "+PlStats[0]); //Isnt applying txtCols??
+        //System.out.println(( PlyrTurn ? "Ply 1st" : "Ai 1st" )); //works
     }
 
     Object[] TileOne = null; // {Tag/ID, Tag/PieceName, Stats/Col}
@@ -313,6 +313,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         //Make selected T1 lose alpha??
 
         if(TileOne != null){
+            System.out.println("TS:T2");
+
             if(UseIcons){
                 c.setBackground(cc);
             }else{
@@ -323,6 +325,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
             //Deal with tile2
             Object[] TileTwo = new Object[]{((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), ((ConcurrentHashMap<String, String>) tv.getTag()).get("Piece"), tv.getCurrentTextColor()};
+
+            System.out.println("TO:"+Arrays.asList(TileTwo));
 
                 //Make sure isnt targeting own piece.. then check if can move to tileTwo (method via reflection string)
 
@@ -353,11 +357,13 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
             TileOne = new Object[]{((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), ((ConcurrentHashMap<String, String>) tv.getTag()).get("Piece"), tv.getCurrentTextColor()};
 
+            System.out.println("TO:"+Arrays.asList(TileOne));
+
             //Toast.makeText(this,TileOne[0]+" ("+TileOne[1]+") selected!",Toast.LENGTH_SHORT).show();
                 //Visibly shows tile selected
             c= tv;
             if(UseIcons){
-                System.out.println("LRP: "+LastRowPieces.indexOf(TileOne[1]));
+                //System.out.println("LRP: "+LastRowPieces.indexOf(TileOne[1]));
                 LayerDrawable LD = (LayerDrawable) tv.getBackground();
                 cc = (LayerDrawable) LD.getConstantState().newDrawable().mutate();
                 LD.getDrawable(0).setColorFilter((Integer) PlStats[0], PorterDuff.Mode.SRC);
@@ -496,11 +502,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         for(TextView tv : RecordOfTiles) {
 
-            if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T1[0])) {
-                tv1 = tv;
-            } else if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T2[0])) {
-                tv2 = tv;
-            }
+            if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T1[0])) { tv1 = tv; }
+            else if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T2[0])) { tv2 = tv; }
 
         }
 
@@ -565,7 +568,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 for(TextView tv : RecordOfTiles){
                     if (tv.getCurrentTextColor() == AiCol){
                         //Check for each.. AI piece
-                        System.out.println(((ConcurrentHashMap<String,String>)tv.getTag()).get("ID"));
                         for (TextView tv2 : RecordOfTiles) {
                             if( tv2.getCurrentTextColor() == AiCol){ continue; }
                             //Skip if same col
@@ -603,7 +605,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 else{
                     //Else.. is Plyr/CultivateAI
                     //Pick a random and move.. run IsMoveSafe.. overload it for multi-use repurpose
-                    System.out.println("PMA: "+PMA); //todo blank if plyr
+                    //System.out.println("PMA: "+PMA);
                     IsMoveSafe(PMA,false);
                 }
             //}); th.start();
@@ -624,7 +626,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             }
         }
 
-        System.out.println(PossibleMoves);
+        //System.out.println(PossibleMoves);
 
         String ChosenMove="";
         for(boolean MoveAllowed = false; !MoveAllowed; PossibleMoves = PossibleMoves.replace(ChosenMove,"")){
@@ -645,7 +647,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 //False if shouldn't make the move
         }
 
-        System.out.println("CHM:" +ChosenMove);
+        //System.out.println("CHM:" +ChosenMove);
 
         //Move if not bad..
         for (Map.Entry<Object[],ArrayList<Object[]>> kvp : PMA.entrySet()){ //Foreach entry in PMA
@@ -654,7 +656,16 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 if (kvp.getKey()[0].equals(ChosenMove.substring(0,2)) && o[0].equals(ChosenMove.substring(2,4))){
                     //System.out.println("CM: "+ChosenMove +"\nT1:"+kvp.getKey()[0]+" T2:"+o[0]);
 
-                    if ( Objects.equals(kvp.getKey()[2] , AiStats[0]) ){
+                    TextView tv1=null,tv2=null;
+                    for (TextView tv : RecordOfTiles ) {
+                        tv1 = (((ConcurrentHashMap<String,String>)tv.getTag()).get("ID").equals(kvp.getKey()[0])) ? tv : tv1;
+                        tv2 = (((ConcurrentHashMap<String,String>)tv.getTag()).get("ID").equals(o[0])) ? tv : tv2;
+                    }
+                    if(tv1 != null && tv2 != null){ System.out.println("tvs NN"); } //works
+                    TextView Tv1=tv1, Tv2=tv2;
+                    runOnUiThread(()->{ TileSelected(Tv1); new Handler().postDelayed(()->{ TileSelected(Tv2); },1800); });
+
+                    /*if ( Objects.equals(kvp.getKey()[2] , AiStats[0]) ){
                         runOnUiThread(()->{ AiShowSelected(kvp.getKey(),o); });
                         //Visual show AI selected - MovePiece inside on delay
                     }else {
@@ -672,9 +683,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                                 TileSelected(Tv2);
                             },1800);
                         });
-
-
-                    }
+                    }*/
 
                 }
             }
@@ -712,7 +721,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 } cc=null;c=null;
 
                 MovePiece(T1,T2);
-            }, 2800); //todo adjust ai delay
+            }, 1800); //todo adjust ai delay .. quicker for cultivate?
         }
     }
 
@@ -721,6 +730,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         TurnsTillStalemate++; PlyrTurn=!PlyrTurn;
 
         new Thread(()->{
+                //Gap between rounds
             try{ Thread.sleep(600); } catch (Exception e){System.err.println("Line 676\n"+e);}
             runOnUiThread(this::MainLoop);
         }).start();
@@ -729,7 +739,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
     private void MainLoop(){
 
-        System.out.println("GMR: "+GameMoveRecord);
+        //System.out.println("GMR: "+GameMoveRecord);
 
         //TurnsTillStalemate+=200;
         if( AiStats[1].equals(true) || PlStats[1].equals(true) || TurnsTillStalemate>=200){
@@ -781,8 +791,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             //PossibleMovesAllowed();
         }else{
             //Enable onclicks..
-            //CultivateAI=false; //Disabling cultivate fn
-             //todo Cultivate AI option? PMA vs PMA.. messes w team col, logic errs
+            //CultivateAI=false; //Disable cultivate
             if(! CultivateAI){
                 for(TextView tv : RecordOfTiles){ tv.setOnClickListener(this::TileSelected); } }
             else{
@@ -813,7 +822,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
                 //System.out.println("FailedMoves.contains(GameMoveRecord) = "+FailedMoves.contains(GameMoveRecord));
                 return ! FailedMoves.contains(GameMoveRecord+Movement);
-                    //Returns false if it shouldn't make the move (determines it leads to failure alrdy recorded)
+                    //Returns false if it shouldn't make the move (determines it leads to failure already recorded)
 
             }catch (Exception e){ System.err.println("ReadBrain err: "+e); }
 
