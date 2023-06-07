@@ -292,7 +292,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     }
 
     Object[] TileOne = null; // {Tag/ID, Tag/PieceName, Stats/Col}
-    private Object c=null,cc=null;
+    private TextView c=null; private LayerDrawable cc=null;
 
     //Handle moving pieces and stuff (only player can click button)
     private void TileSelected(View v){
@@ -301,14 +301,13 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         //Make selected T1 lose alpha??
 
         if(TileOne != null){
-            TextView C = (TextView)c;
             if(UseIcons){
-                LayerDrawable CC = (LayerDrawable) cc;
-                C.setBackground(CC);
+                c.setBackground(cc);
             }else{
-                C.setTextColor((Integer) PlStats[0]);
-                C.setBackgroundColor(Integer.parseInt(((ConcurrentHashMap<String, String>) C.getTag()).get("OriginalBg")));
+                c.setTextColor((Integer) PlStats[0]);
+                c.setBackgroundColor(Integer.parseInt(((ConcurrentHashMap<String, String>) c.getTag()).get("OriginalBg")));
             }
+            c=null; cc=null; System.out.println("ccc nulled");
 
             //Deal with tile2
             Object[] TileTwo = new Object[]{((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), ((ConcurrentHashMap<String, String>) tv.getTag()).get("Piece"), tv.getCurrentTextColor()};
@@ -318,6 +317,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
             try {
                 if (! TileOne[2].equals(TileTwo[2]) && (boolean) this.getClass().getDeclaredMethod(TileOne[1]+"", Object[].class, Object[].class).invoke(this, TileOne, TileTwo)) {
+                    System.out.println("Plyr MP");
                     MovePiece(TileOne,TileTwo);
 
                     //Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nAllowed move!",Toast.LENGTH_SHORT).show();
@@ -346,7 +346,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             c= tv;
             if(UseIcons){
                 LayerDrawable LD = (LayerDrawable) tv.getBackground();
-                cc = LD.getConstantState().newDrawable().mutate();
+                cc = (LayerDrawable) LD.getConstantState().newDrawable().mutate();
                 LD.getDrawable(0).setColorFilter((Integer) PlStats[0], PorterDuff.Mode.SRC);
                 LD.getDrawable(1).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) tv.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
             }else{
@@ -501,33 +501,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         TextView Tv2 = tv2, Tv1 = tv1;
         runOnUiThread(()->{
-//            //Visual show AI selected
-//            if (Tv1.getCurrentTextColor()==(int)AiStats[0]) {
-//                System.out.println("AI sel");
-//                cc = null; c=Tv1;
-//                if(UseIcons){
-//                    LayerDrawable LD = (LayerDrawable) Tv1.getBackground();
-//                    cc = LD.getConstantState().newDrawable().mutate();
-//                    LD.getDrawable(0).setColorFilter((Integer) PlStats[0], PorterDuff.Mode.SRC);
-//                    LD.getDrawable(1).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
-//                }else{
-//                    Tv1.setBackgroundColor(Color.parseColor("#"+Integer.toHexString(Tv1.getCurrentTextColor()).substring(2) ));
-//                    Tv1.setTextColor(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")));
-//                }
-//                new Handler().postDelayed(() -> {
-//                    TextView C = (TextView) c;
-//                    if(UseIcons){
-//                        LayerDrawable CC = (LayerDrawable) cc;
-//                        C.setBackground(CC);
-//                    }else{
-//                        C.setTextColor((Integer) AiStats[0]);
-//                        C.setBackgroundColor(Integer.parseInt(((ConcurrentHashMap<String, String>) C.getTag()).get("OriginalBg")));
-//                    }
-//                    System.out.println("AI rev");
-//                }, 800);
-//            }
-//            //Visual show AI selected
-
             Toast.makeText(context,T1[0]+" => "+T2[0]+"\n("+T1[1]+")",Toast.LENGTH_SHORT).show();
 
             if (UseIcons){
@@ -665,9 +638,46 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     //System.out.println("CM: "+ChosenMove);
 
                     //todo SetUpVisual here??
-                    MovePiece(kvp.getKey(),o);
+                    runOnUiThread(()->{ AiShowSelected(kvp.getKey(),o); });
+                    //Visual show AI selected  MovePiece inside on delay
                 }
             }
+        }
+    }
+
+    private void AiShowSelected(Object[] T1, Object[]T2){
+        TextView Tv1 = null, Tv2=null;
+        for(TextView tv : RecordOfTiles) {
+            if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T1[0])) { Tv1 = tv; }
+            else if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T2[0])) { Tv2 = tv; }
+        }
+
+
+
+        if (Tv1.getCurrentTextColor()==(int)AiStats[0]) {
+            c = Tv1;
+            // CC=LD of Tv1; c=TxtVw Tv1
+
+            if(UseIcons){
+                LayerDrawable LD = (LayerDrawable) Tv1.getBackground();
+                cc = (LayerDrawable) LD.getConstantState().newDrawable().mutate();
+                LD.getDrawable(0).setColorFilter((Integer) AiStats[0], PorterDuff.Mode.SRC);
+                LD.getDrawable(1).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
+                    //todo Err for Drawable.. link to last row pieces ?
+            }else{
+                Tv1.setBackgroundColor(Color.parseColor("#"+Integer.toHexString(Tv1.getCurrentTextColor()).substring(2) ));
+                Tv1.setTextColor(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")));
+            }
+            new Handler().postDelayed(() -> {
+                if(UseIcons){
+                    c.setBackground(cc);
+                }else{
+                    c.setTextColor((Integer) AiStats[0]);
+                    c.setBackgroundColor(Integer.parseInt(((ConcurrentHashMap<String, String>) c.getTag()).get("OriginalBg")));
+                } cc=null;c=null;
+
+                MovePiece(T1,T2);
+            }, 2800);
         }
     }
 
@@ -734,7 +744,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
             th = new Thread(()->{ PossibleMovesAllowed((Integer) AiStats[0]); });
             try { th.join(); //join.. makes curr thread wait till the thread calling join dies.. is AWAIT
-                th.start(); } catch (Exception e) { System.err.println("Line 734\n"+e); }
+               th.start(); } catch (Exception e) { System.err.println("Line 734\n"+e); }
             //PossibleMovesAllowed();
         }else{
             //Enable onclicks..
