@@ -133,8 +133,10 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         //Add pieces..
         try {  //join stops curr (calling) thread till the ref/var thread process is complete..
-            th = new Thread(()->{SetupPieces(); MainLoop();});
+            th = new Thread(()->{SetupPieces();});
             th.start();
+            th.join(); //join makes UI thread wait for th thread to die..
+            MainLoop();
         } catch (Exception e) { System.err.println("Line 138\n"+e); }
     }
 
@@ -190,15 +192,19 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     private ArrayList<String> LastRowPieces; //Need global for access elsewhere
 
     private void SetupPieces(){
-        ApplyTeamCols();
+        Thread th = new Thread(()->{ApplyTeamCols();});
+        //ApplyTeamCols();
+        try{ th.start(); th.join(); } catch (Exception e){System.err.println("Line 197: "+e);}
+
+        System.out.println("Check 0:63"+ RecordOfTiles.get(0).getCurrentTextColor()+":"+RecordOfTiles.get(63).getCurrentTextColor()); //Solved.. runOnUiThread.. unnecessary extra
 
         //System.out.println("S P..");
         //IsMainThread(); //isnt main thread
         //String[] LastRowPieces = new String[]{getResources().getString(R.string.Rook), getResources().getString(R.string.Knight), getResources().getString(R.string.Bishop), getResources().getString(R.string.King), getResources().getString(R.string.Queen), getResources().getString(R.string.Bishop), getResources().getString(R.string.Knight), getResources().getString(R.string.Rook)};
         LastRowPieces = new ArrayList<>(Arrays.asList(getString(R.string.Rook), getString(R.string.Knight), getString(R.string.Bishop), getString(R.string.King), getString(R.string.Queen), getString(R.string.Bishop), getString(R.string.Knight), getString(R.string.Rook)));
             //Have to assign here else context err
-
-
+        LastRowPieces.add(0,""); LastRowPieces.add(1,getString(R.string.Pawn));
+            //RunOnUiThread means foreach completes before UI updates
 
         for(TextView tv : RecordOfTiles) {
 
@@ -243,6 +249,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 case ("A"):
                 case ("H"):
                     int s2 = Integer.parseInt(s.substring(1));
+                    CHM.put("Piece", LastRowPieces.get(s2 +1) );
+
                     runOnUiThread(() -> {
                         if(UseIcons){
                             tv.setText("");
@@ -251,7 +259,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                             ((GradientDrawable) ld.getDrawable(0)).setColor(Integer.parseInt(CHM.get("OriginalBg")));
 
                             for(int i=1;i<ld.getNumberOfLayers();i++){
-                                if( i-1 == s2){
+                                if( i == LastRowPieces.indexOf(CHM.get("Piece"))){
                                     ld.getDrawable(i).setAlpha(255); ld.getDrawable(i).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
                                 }else{ ld.getDrawable(i).setAlpha(0); }
                             }
@@ -259,8 +267,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                             tv.setBackground(ld);
                         }else { tv.setText(LastRowPieces.get(s2 + 1)); }
 
-                        CHM.put("Piece", LastRowPieces.get(s2 +1) ); System.out.println(s.charAt(1)+":"+LastRowPieces.get(s2 - 1));
-                                        //todo Runs after switch statement.. before switch statement???????
                         tv.setTag(CHM);
 
                         RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);
@@ -268,35 +274,32 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     break;
             }
         }
-        System.out.println("SP");           //todo SP prints before ML.. ML before foreach .. foreach after LRP.add()..
-        LastRowPieces.add(0,""); LastRowPieces.add(1,getString(R.string.Pawn));
-        //MainLoop();
     }
 
     private void ApplyTeamCols(){
-
+        System.out.println("ATC");
         for(TextView tv : RecordOfTiles) {
             String tag = ((ConcurrentHashMap<String, String>) tv.getTag()).get("ID");
             switch (tag.substring(0, 1)) {
                 case "A": case "B":
                     //AI
-                    runOnUiThread(() -> {
+                    //runOnUiThread(() -> {
                         tv.setTextColor((int) AiStats[0]);
                         RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);
-                    });
+                    //});
                     break;
                 case "H": case "G":
                     //Pl
-                    runOnUiThread(() -> {
+                    //runOnUiThread(() -> {
                         tv.setTextColor((int) PlStats[0]);
                         RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);
-                    });
+                    //});
                     break;
             }
 
         }
-
-        //System.out.println(( PlyrTurn ? "Ply 1st" : "Ai 1st" )); //works
+        System.out.println(AiStats[0]+" AI : PL "+PlStats[0]); //Isnt applying txtCols??
+        System.out.println(( PlyrTurn ? "Ply 1st" : "Ai 1st" )); //works
     }
 
     Object[] TileOne = null; // {Tag/ID, Tag/PieceName, Stats/Col}
@@ -315,7 +318,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 c.setTextColor((Integer) PlStats[0]);
                 c.setBackgroundColor(Integer.parseInt(((ConcurrentHashMap<String, String>) c.getTag()).get("OriginalBg")));
             }
-            c=null; cc=null; System.out.println("ccc nulled");
+            c=null; cc=null;
 
             //Deal with tile2
             Object[] TileTwo = new Object[]{((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), ((ConcurrentHashMap<String, String>) tv.getTag()).get("Piece"), tv.getCurrentTextColor()};
@@ -325,7 +328,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
             try {
                 if (! TileOne[2].equals(TileTwo[2]) && (boolean) this.getClass().getDeclaredMethod(TileOne[1]+"", Object[].class, Object[].class).invoke(this, TileOne, TileTwo)) {
-                    System.out.println("Plyr MP");
+                    //System.out.println("Plyr MP");
                     MovePiece(TileOne,TileTwo);
 
                     //Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nAllowed move!",Toast.LENGTH_SHORT).show();
@@ -353,10 +356,11 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 //Visibly shows tile selected
             c= tv;
             if(UseIcons){
+                System.out.println("LRP: "+LastRowPieces.indexOf(TileOne[1]));
                 LayerDrawable LD = (LayerDrawable) tv.getBackground();
                 cc = (LayerDrawable) LD.getConstantState().newDrawable().mutate();
                 LD.getDrawable(0).setColorFilter((Integer) PlStats[0], PorterDuff.Mode.SRC);
-                LD.getDrawable(1).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) tv.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
+                LD.getDrawable( LastRowPieces.indexOf(TileOne[1]) ).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) tv.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
             }else{
                 tv.setBackgroundColor(Color.parseColor("#"+Integer.toHexString(tv.getCurrentTextColor()).substring(2) ));
                 tv.setTextColor(Integer.parseInt(((ConcurrentHashMap<String, String>) tv.getTag()).get("OriginalBg")));
@@ -560,6 +564,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 for(TextView tv : RecordOfTiles){
                     if (tv.getCurrentTextColor() == AiCol){
                         //Check for each.. AI piece
+                        System.out.println(((ConcurrentHashMap<String,String>)tv.getTag()).get("ID"));
                         for (TextView tv2 : RecordOfTiles) {
                             if( tv2.getCurrentTextColor() == AiCol){ continue; }
                             //Skip if same col
@@ -597,6 +602,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 else{
                     //Else.. is Plyr/CultivateAI
                     //Pick a random and move.. run IsMoveSafe.. overload it for multi-use repurpose
+                    System.out.println("PMA: "+PMA); //todo blank if plyr
                     IsMoveSafe(PMA,false);
                 }
             //}); th.start();
@@ -617,6 +623,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             }
         }
 
+        System.out.println(PossibleMoves);
+
         String ChosenMove="";
         for(boolean MoveAllowed = false; !MoveAllowed; PossibleMoves = PossibleMoves.replace(ChosenMove,"")){
             if (PossibleMoves.length() == 0){
@@ -636,36 +644,36 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 //False if shouldn't make the move
         }
 
+        System.out.println("CHM:" +ChosenMove);
+
         //Move if not bad..
         for (Map.Entry<Object[],ArrayList<Object[]>> kvp : PMA.entrySet()){ //Foreach entry in PMA
             for(Object[] o : kvp.getValue()) {
                 //Have to find randomly picked tile(s) from all PMA.. then make move
                 if (kvp.getKey()[0].equals(ChosenMove.substring(0,2)) && o[0].equals(ChosenMove.substring(2,4))){
-                    System.out.println("CM: "+ChosenMove +"\nT1:"+kvp.getKey()[0]+" T2:"+o[0]);
+                    //System.out.println("CM: "+ChosenMove +"\nT1:"+kvp.getKey()[0]+" T2:"+o[0]);
 
-                    //todo SetUpVisual here??
-                    runOnUiThread(()->{ AiShowSelected(kvp.getKey(),o); });
-                     //return;
-                    //Visual show AI selected  MovePiece inside on delay
+                    if ( Objects.equals(kvp.getKey()[2] , AiStats[0]) ){
+                        runOnUiThread(()->{ AiShowSelected(kvp.getKey(),o); });
+                        //Visual show AI selected - MovePiece inside on delay
+                    }else {
+                        System.out.println("Pl MP :"+ChosenMove);
+                        MovePiece(kvp.getKey(),o);
+                    }
+
                 }
             }
         }
     }
 
     private void AiShowSelected(Object[] T1, Object[]T2){
-        TextView Tv1 = new TextView(context), Tv2= new TextView(this);
+        TextView Tv1 = new TextView(context);
+
         for(TextView tv : RecordOfTiles) {
-            //works.. when u print out the one u want ?
-            if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T1[0].toString())) { Tv1 = tv; }
-            else if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T2[0].toString())) { Tv2 = tv; }
+            if ( ((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T1[0].toString()) ){ Tv1 = tv; }
         }
 
-        //todo said knight, picked king.. G2F2B3C3G3F3 A4C5
-        System.out.println(MessageFormat.format(
-                "T1: {0} : {1} | Tv1: {0} : {1}\nT2: {0} : {1} | Tv2: {0} : {1}",
-                T1[0],T1[1] , ((ConcurrentHashMap<String, String>) Tv1.getTag()).get("ID"),((ConcurrentHashMap<String, String>) Tv1.getTag()).get("Piece"),
-                T2[0],T2[1] , ((ConcurrentHashMap<String, String>) Tv2.getTag()).get("ID"),((ConcurrentHashMap<String, String>) Tv2.getTag()).get("Piece")
-        ));
+        //System.out.println(MessageFormat.format( "{0} | tv1-tv2" ,Objects.equals(Tv1,Tv2) ));
 
         if (Tv1.getCurrentTextColor()==(int)AiStats[0]) {
             c = Tv1;
@@ -675,11 +683,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 LayerDrawable LD = (LayerDrawable) Tv1.getBackground();
                 cc = (LayerDrawable) LD.getConstantState().newDrawable().mutate();
                 LD.getDrawable(0).setColorFilter((Integer) AiStats[0], PorterDuff.Mode.SRC);
-                System.out.println(LastRowPieces+" ["+T1[1]+"] : "+LastRowPieces.indexOf(T1[1].toString()));
-                LD.getDrawable(
-                        LastRowPieces.indexOf(T1[1].toString())
-                ).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
-                    //todo Err for Drawable.. link to last row pieces ?
+                LD.getDrawable( LastRowPieces.indexOf(T1[1].toString()) ).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
             }else{
                 Tv1.setBackgroundColor(Color.parseColor("#"+Integer.toHexString(Tv1.getCurrentTextColor()).substring(2) ));
                 Tv1.setTextColor(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")));
@@ -693,7 +697,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 } cc=null;c=null;
 
                 MovePiece(T1,T2);
-            }, 2800);
+            }, 2800); //todo adjust ai delay
         }
     }
 
@@ -710,9 +714,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
     private void MainLoop(){
 
-        //todo MainLoop runs before SetupPieces
         System.out.println("GMR: "+GameMoveRecord);
-
 
         //TurnsTillStalemate+=200;
         if( AiStats[1].equals(true) || PlStats[1].equals(true) || TurnsTillStalemate>=200){
@@ -773,7 +775,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 th = new Thread(()->{
                     //try{ Thread.sleep(1400); } catch (Exception e){}
                     //Object o = PlStats[0]; PlStats[0] = AiStats[0]; AiStats[0]=o;
-                    System.out.println("pma..");
+                    System.out.println("Cultivate..");
                     PossibleMovesAllowed((Integer) PlStats[0]);
 
                 }); th.start();
