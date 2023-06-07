@@ -339,6 +339,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     //Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nAllowed move!",Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nInvalid move!",Toast.LENGTH_SHORT).show();
+                    //v.setBackgroundColor(Integer.parseInt(((ConcurrentHashMap<String,String>)v.getTag()).get("OriginalBg")));
                 }
             }catch (Exception e){
                 System.err.println("ReflectionInvoke Err: "+e);
@@ -501,10 +502,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         //ConcurrentHashMap<String,String> CHM = new ConcurrentHashMap<>();
 
         for(TextView tv : RecordOfTiles) {
-
             if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T1[0])) { tv1 = tv; }
             else if (((ConcurrentHashMap<String, String>) tv.getTag()).get("ID").equals(T2[0])) { tv2 = tv; }
-
         }
 
         if (tv2.getCurrentTextColor() != Color.parseColor("#888888")) { TurnsTillStalemate=0; }
@@ -513,7 +512,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         ((ConcurrentHashMap<String, String>) tv2.getTag()).put("Piece", ((ConcurrentHashMap<String, String>) tv1.getTag()).get("Piece") );
         ((ConcurrentHashMap<String, String>) tv1.getTag()).put("Piece","");
 
-        //While temp no BGR..has to use Txt..
 
         TextView Tv2 = tv2, Tv1 = tv1;
         runOnUiThread(()->{
@@ -525,7 +523,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
                 Tv2.setBackground( LD );
                 //Tv1.setBackgroundColor();
-                Tv1.setBackgroundColor( Integer.parseInt( ((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg") )); //??
+                Tv1.setBackgroundColor( Integer.parseInt( ((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg") )); //?? todo err on diff bg means bg override
             }else {
                 Tv2.setText(Tv1.getText());
                 Tv1.setText(DetailedView ? ((ConcurrentHashMap<String, String>) Tv1.getTag()).get("ID") : "");
@@ -656,16 +654,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 if (kvp.getKey()[0].equals(ChosenMove.substring(0,2)) && o[0].equals(ChosenMove.substring(2,4))){
                     //System.out.println("CM: "+ChosenMove +"\nT1:"+kvp.getKey()[0]+" T2:"+o[0]);
 
-                    TextView tv1=null,tv2=null;
-                    for (TextView tv : RecordOfTiles ) {
-                        tv1 = (((ConcurrentHashMap<String,String>)tv.getTag()).get("ID").equals(kvp.getKey()[0])) ? tv : tv1;
-                        tv2 = (((ConcurrentHashMap<String,String>)tv.getTag()).get("ID").equals(o[0])) ? tv : tv2;
-                    }
-                    if(tv1 != null && tv2 != null){ System.out.println("tvs NN"); } //works
-                    TextView Tv1=tv1, Tv2=tv2;
-                    runOnUiThread(()->{ TileSelected(Tv1); new Handler().postDelayed(()->{ TileSelected(Tv2); },1800); });
-
-                    /*if ( Objects.equals(kvp.getKey()[2] , AiStats[0]) ){
+                    if ( Objects.equals(kvp.getKey()[2] , AiStats[0]) ){
                         runOnUiThread(()->{ AiShowSelected(kvp.getKey(),o); });
                         //Visual show AI selected - MovePiece inside on delay
                     }else {
@@ -681,9 +670,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
                             new Handler().postDelayed(()->{
                                 TileSelected(Tv2);
-                            },1800);
+                            },(CultivateAI) ? 600 : 1800);
                         });
-                    }*/
+                    }
 
                 }
             }
@@ -721,7 +710,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 } cc=null;c=null;
 
                 MovePiece(T1,T2);
-            }, 1800); //todo adjust ai delay .. quicker for cultivate?
+            }, (CultivateAI) ? 600 : 1800);
         }
     }
 
