@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
 import android.os.Handler;
@@ -226,7 +227,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                             LayerDrawable ld = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.pieces_ai, getTheme()).getConstantState().newDrawable().mutate();
                                 //create a copy of drawable, make it new.. make it mutate so doesnt affect orig
 
-                            ((GradientDrawable) ld.getDrawable(0)).setColor(Integer.parseInt(CHM.get("OriginalBg")));
+                            ld.getDrawable(0).setColorFilter(Integer.parseInt(CHM.get("OriginalBg")), PorterDuff.Mode.SRC);
                             ld.getDrawable(1).setAlpha(255); ld.getDrawable(1).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
                                         //alpha is % by xml alpha value? 0-255
 
@@ -254,7 +255,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                             tv.setText("");
 
                             LayerDrawable ld = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.pieces_ai, getTheme()).getConstantState().newDrawable().mutate();
-                            ((GradientDrawable) ld.getDrawable(0)).setColor(Integer.parseInt(CHM.get("OriginalBg")));
+                            ( ld.getDrawable(0)).setColorFilter(Integer.parseInt(CHM.get("OriginalBg")), PorterDuff.Mode.SRC);
 
                             for(int i=1;i<ld.getNumberOfLayers();i++){
                                 if( i == LastRowPieces.indexOf(CHM.get("Piece"))){
@@ -318,7 +319,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             if(UseIcons){
                 c.setBackground(cc);
             }else{
-                c.setTextColor((Integer) PlStats[0]);
+                c.setTextColor((Integer) PlStats[0]); //todo feels wrong ???works fine..
                 c.setBackgroundColor(Integer.parseInt(((ConcurrentHashMap<String, String>) c.getTag()).get("OriginalBg")));
             }
             c=null; cc=null;
@@ -326,20 +327,17 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             //Deal with tile2
             Object[] TileTwo = new Object[]{((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), ((ConcurrentHashMap<String, String>) tv.getTag()).get("Piece"), tv.getCurrentTextColor()};
 
-            System.out.println("TO:"+Arrays.asList(TileTwo));
+           System.out.println("TT:"+Arrays.asList(TileTwo)); //ID,Piece,TxtCol
 
                 //Make sure isnt targeting own piece.. then check if can move to tileTwo (method via reflection string)
 
-
             try {
                 if (! TileOne[2].equals(TileTwo[2]) && (boolean) this.getClass().getDeclaredMethod(TileOne[1]+"", Object[].class, Object[].class).invoke(this, TileOne, TileTwo)) {
-                    //System.out.println("Plyr MP");
                     MovePiece(TileOne,TileTwo);
 
                     //Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nAllowed move!",Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nInvalid move!",Toast.LENGTH_SHORT).show();
-                    //v.setBackgroundColor(Integer.parseInt(((ConcurrentHashMap<String,String>)v.getTag()).get("OriginalBg")));
+                    Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\n("+TileOne[1]+") Invalid move!",Toast.LENGTH_SHORT).show();
                 }
             }catch (Exception e){
                 System.err.println("ReflectionInvoke Err: "+e);
@@ -357,8 +355,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             //Is a piece
 
             TileOne = new Object[]{((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), ((ConcurrentHashMap<String, String>) tv.getTag()).get("Piece"), tv.getCurrentTextColor()};
-
-            System.out.println("TO:"+Arrays.asList(TileOne));
 
             //Toast.makeText(this,TileOne[0]+" ("+TileOne[1]+") selected!",Toast.LENGTH_SHORT).show();
                 //Visibly shows tile selected
@@ -512,18 +508,18 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         ((ConcurrentHashMap<String, String>) tv2.getTag()).put("Piece", ((ConcurrentHashMap<String, String>) tv1.getTag()).get("Piece") );
         ((ConcurrentHashMap<String, String>) tv1.getTag()).put("Piece","");
 
-
         TextView Tv2 = tv2, Tv1 = tv1;
         runOnUiThread(()->{
             Toast.makeText(context,T1[0]+" => "+T2[0]+"\n("+T1[1]+")",Toast.LENGTH_SHORT).show();
 
+            //fixed orig bg override.. cast class unnecessary
             if (UseIcons){
                 LayerDrawable LD = (LayerDrawable) Tv1.getBackground().getConstantState().newDrawable().mutate();
                 LD.getDrawable(0).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv2.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC);
 
                 Tv2.setBackground( LD );
                 //Tv1.setBackgroundColor();
-                Tv1.setBackgroundColor( Integer.parseInt( ((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg") )); //?? todo err on diff bg means bg override
+                Tv1.setBackgroundColor( Integer.parseInt( ((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg") ));
             }else {
                 Tv2.setText(Tv1.getText());
                 Tv1.setText(DetailedView ? ((ConcurrentHashMap<String, String>) Tv1.getTag()).get("ID") : "");
