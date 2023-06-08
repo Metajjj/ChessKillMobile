@@ -597,43 +597,44 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     private void IsMoveSafe(ConcurrentHashMap<Object[],ArrayList<Object[]>> PMA){
         IsMoveSafe(PMA, true);
     }
-    private void IsMoveSafe(ConcurrentHashMap<Object[],ArrayList<Object[]>> PMA, Boolean makeSafe){
+    private void IsMoveSafe(ConcurrentHashMap<Object[],ArrayList<Object[]>> PMA, Boolean makeSafe) {
         //Pick random move..
-        String PossibleMoves="";
-        for (Map.Entry<Object[],ArrayList<Object[]>> kvp : PMA.entrySet()){ //Foreach entry in PMA
-            for(Object[] o : kvp.getValue()){ //foreach value in arrayList
+        String PossibleMoves = "";
+        for (Map.Entry<Object[], ArrayList<Object[]>> kvp : PMA.entrySet()) { //Foreach entry in PMA
+            for (Object[] o : kvp.getValue()) { //foreach value in arrayList
                 PossibleMoves += kvp.getKey()[0].toString() + o[0].toString();
             }
         }
 
         //System.out.println(PossibleMoves);
 
-        String ChosenMove="";
-        for(boolean MoveAllowed = false; !MoveAllowed; PossibleMoves = PossibleMoves.replace(ChosenMove,"")){
-            if (PossibleMoves.length() == 0){
+        String ChosenMove = "";
+        for (boolean MoveAllowed = false; !MoveAllowed; PossibleMoves = PossibleMoves.replace(ChosenMove, "")) {
+            if (PossibleMoves.length() == 0) {
                 //No possible moves.. all = err
                 WriteResWLR();
-                InteractBrainFile(getString(R.string.Write),"");
-                AiStats[1]=true; //Make king dead true.. auto lose
-                MainLoop(); return;
+                InteractBrainFile(getString(R.string.Write), "");
+                AiStats[1] = true; //Make king dead true.. auto lose
+                MainLoop();
+                return;
             }
-                //Divide PM into sets of 4 (A1=>A2) .. pick a group .. *4 to get where start of it is in PM , Len: 4
+            //Divide PM into sets of 4 (A1=>A2) .. pick a group .. *4 to get where start of it is in PM , Len: 4
 
-            int sb = (int) (Math.floor(Math.random()*PossibleMoves.length()/4 )) *4;
-            ChosenMove = PossibleMoves.substring(sb, sb+4);
+            int sb = (int) (Math.floor(Math.random() * PossibleMoves.length() / 4)) * 4;
+            ChosenMove = PossibleMoves.substring(sb, sb + 4);
 
             MoveAllowed = !makeSafe || InteractBrainFile(getString(R.string.Read), ChosenMove);
-                                        //Check if move is recorded..
-                //False if shouldn't make the move
+            //Check if move is recorded..
+            //False if shouldn't make the move
         }
 
         //System.out.println("CHM:" +ChosenMove);
 
         //Move if not bad..
-        for (Map.Entry<Object[],ArrayList<Object[]>> kvp : PMA.entrySet()){ //Foreach entry in PMA
-            for(Object[] o : kvp.getValue()) {
+        for (Map.Entry<Object[], ArrayList<Object[]>> kvp : PMA.entrySet()) { //Foreach entry in PMA
+            for (Object[] o : kvp.getValue()) {
                 //Have to find randomly picked tile(s) from all PMA.. then make move
-                if (kvp.getKey()[0].equals(ChosenMove.substring(0,2)) && o[0].equals(ChosenMove.substring(2,4))) {
+                if (kvp.getKey()[0].equals(ChosenMove.substring(0, 2)) && o[0].equals(ChosenMove.substring(2, 4))) {
                     //System.out.println("CM: "+ChosenMove +"\nT1:"+kvp.getKey()[0]+" T2:"+o[0]);
 
                     TextView tv1 = null, tv2 = null;
@@ -644,45 +645,12 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     TextView Tv1 = tv1, Tv2 = tv2;
                     runOnUiThread(() -> {
                         TileSelected(Tv1);
-                        new Handler().postDelayed(() -> { TileSelected(Tv2); }, (CultivateAI) ? 600 : 1800);
+                        new Handler().postDelayed(() -> {
+                            TileSelected(Tv2);
+                        }, (CultivateAI) ? 600 : 1800);
                     });
                 }
             }
-        }
-    }
-
-    private void AiShowSelected(Object[] T1, Object[]T2){
-        TextView Tv1 = new TextView(context);
-
-        for(TextView tv : RecordOfTiles) {
-            if (Objects.equals(((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), T1[0].toString())){ Tv1 = tv; }
-        }
-
-        //System.out.println(MessageFormat.format( "{0} | tv1-tv2" ,Objects.equals(Tv1,Tv2) ));
-
-        if (Tv1.getCurrentTextColor()==(int)AiStats[0]) {
-            c = Tv1;
-            // CC=LD of Tv1; c=TxtVw Tv1
-
-            if(UseIcons){
-                LayerDrawable LD = (LayerDrawable) Tv1.getBackground();
-                cc = (LayerDrawable) LD.getConstantState().newDrawable().mutate();
-                LD.getDrawable(0).setColorFilter((Integer) AiStats[0], PorterDuff.Mode.SRC);
-                LD.getDrawable( LastRowPieces.indexOf(T1[1].toString()) ).setColorFilter(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")), PorterDuff.Mode.SRC_IN);
-            }else{
-                Tv1.setBackgroundColor(Color.parseColor("#"+Integer.toHexString(Tv1.getCurrentTextColor()).substring(2) ));
-                Tv1.setTextColor(Integer.parseInt(((ConcurrentHashMap<String, String>) Tv1.getTag()).get("OriginalBg")));
-            }
-            new Handler().postDelayed(() -> {
-                if(UseIcons){
-                    c.setBackground(cc);
-                }else{
-                    c.setTextColor((Integer) AiStats[0]);
-                    c.setBackgroundColor(Integer.parseInt(((ConcurrentHashMap<String, String>) c.getTag()).get("OriginalBg")));
-                } cc=null;c=null;
-
-                MovePiece(T1,T2);
-            }, (CultivateAI) ? 600 : 1800);
         }
     }
 
