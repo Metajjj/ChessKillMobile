@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/PieceBg">
-        <shape android:shape="rectangle">
-            <solid android:color="#FFFFFF"/>
-        </shape>
+        <!-- changed from shape to color.. gets ColorDrawable instead of GradientDrawable -->
+        <color android:color="#ffffff"/>
     </item>
     <item>
         <bitmap android:alpha="1" android:src="@drawable/pawn" android:tint="#FF0000"/>
