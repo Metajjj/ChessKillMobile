@@ -22,15 +22,4 @@
     <item>
         <bitmap android:alpha="1" android:src="@drawable/queen" android:tint="#7F00FF"/>
     </item>
-
-    <!-- Extra to match array in code -->
-    <item>
-        <bitmap android:alpha="1" android:src="@drawable/bishop" android:tint="#00FF00"/>
-    </item>
-    <item>
-        <bitmap android:alpha="1" android:src="@drawable/knight" android:tint="#FFFF00"/>
-    </item>
-    <item>
-        <bitmap android:alpha="1" android:src="@drawable/rook" android:tint="#FF7F00"/>
-    </item>
 </layer-list>

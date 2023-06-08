@@ -11,6 +11,8 @@ import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -96,6 +98,10 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         PlyrTurn = (PlStats[0].equals( Color.parseColor(s) )); //WORKS
 
+        ((TextView)findViewById(R.id.GameTitle)).setText("Loading...");
+        try { th.join(); } catch (Exception e){System.err.println("Line101 :"+e);}
+        ((TextView)findViewById(R.id.GameTitle)).setText(getString(R.string.app_name));
+
         TeamSelected();
     }
 
@@ -174,7 +180,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             }
             Collections.reverse(bgcols);
             runOnUiThread(()->{ TL.addView(TR); });
-            try{ Thread.sleep(20); } catch (Exception e){System.err.println("Line 186\n"+e);}
+            //try{ Thread.sleep(20); } catch (Exception e){System.err.println("Line 186\n"+e);}
         }
     }
 
@@ -207,6 +213,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
                 case ("B"):
                 case ("G"):
+                    CHM.put("Piece", getResources().getString(R.string.Pawn));
                     runOnUiThread(() -> {
                         if( UseIcons) {
                             tv.setText("");
@@ -227,11 +234,11 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
                         }else{ tv.setText(getResources().getString(R.string.Pawn)); }
 
-                        CHM.put("Piece", getResources().getString(R.string.Pawn));
-                        tv.setTag(CHM);
+                        //CHM.put("Piece", getResources().getString(R.string.Pawn)); //Slower and behind MainLoop to update when from UI thread
+                        //tv.setTag(CHM); //Dont have to set tag.. auto updates the concurrenthashmap it came from
 
                         RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);
-                    });
+                    });//*/
                     break;
                 case ("A"):
                 case ("H"):
@@ -246,6 +253,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                             ((ColorDrawable)ld.getDrawable(0)).setColor(Integer.parseInt(CHM.get("OriginalBg")));
 
                             for(int i=1;i<ld.getNumberOfLayers();i++){
+                                    //Playing with indexOf guarantees lowest index.. no outside of index for drawable array
                                 if( i == LastRowPieces.indexOf(CHM.get("Piece"))){
                                     ld.getDrawable(i).setAlpha(255); ld.getDrawable(i).setColorFilter(tv.getCurrentTextColor(), PorterDuff.Mode.SRC_IN);
                                 }else{ ld.getDrawable(i).setAlpha(0); }
@@ -253,8 +261,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
                             tv.setBackground(ld);
                         }else { tv.setText(LastRowPieces.get(s2 + 1)); }
-
-                        tv.setTag(CHM);
 
                         RecordOfTiles.set(RecordOfTiles.indexOf(tv), tv);
                     });
@@ -332,11 +338,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\n("+TileOne[1]+") Invalid move!",Toast.LENGTH_SHORT).show();
                 }
             }catch (Exception e){
-                Log.e("TAG","Line 335 (reflect): "+e+"\n  T1:"+Arrays.asList(TileOne)+"|T2:"+Arrays.asList(TileTwo));
-                //todo reflection err when ai is first ??
-
-
-                //Appears to occur from clicking too fast..?
+                System.err.println("ReflectErr (Line 335): "+e);
 
                 Toast.makeText(this, "Srs err, reflection err\nAborting game..", Toast.LENGTH_LONG).show();
                 new Handler().postDelayed(()->{ startActivity(new Intent(this,Main.class)); },2000);
@@ -352,7 +354,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
             //Toast.makeText(this,TileOne[0]+" ("+TileOne[1]+") selected!",Toast.LENGTH_SHORT).show();
                 //Visibly shows tile selected
-            c= tv;
+            c=tv;
             if(UseIcons){
                 //System.out.println("LRP: "+LastRowPieces.indexOf(TileOne[1]));
                 LayerDrawable LD = (LayerDrawable) tv.getBackground();
@@ -569,7 +571,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                                 //System.out.println( "T1: "+new ArrayList<>(Arrays.asList(T1))+ "\nT2: "+new ArrayList<>(Arrays.asList(T2)));
                                 Res = (Boolean) this.getClass().getDeclaredMethod(T1[1] + "", Object[].class, Object[].class).invoke(this, T1, T2);
                             } catch (Exception e){
-                                System.err.println("ReflectionInvoke Err: "+e);
+                                Log.e(getString(R.string.app_name),"Line 335 (reflect): "+e+"\n  T1:"+Arrays.asList(T1)+"|T2:"+Arrays.asList(T2));
 
                                 Res=false;
                             }
@@ -726,13 +728,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             if(! CultivateAI){
                 for(TextView tv : RecordOfTiles){ tv.setOnClickListener(this::TileSelected); } }
             else{
-                //Changing col changes team selected?
                 th = new Thread(()->{
-                    //try{ Thread.sleep(1400); } catch (Exception e){}
-                    //Object o = PlStats[0]; PlStats[0] = AiStats[0]; AiStats[0]=o;
-                    System.out.println("Cultivate..");
+                    //System.out.println("Cultivate..");
                     PossibleMovesAllowed((Integer) PlStats[0]);
-
                 }); th.start();
             }
         }
