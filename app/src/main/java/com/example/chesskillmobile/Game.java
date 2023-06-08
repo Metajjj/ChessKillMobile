@@ -11,6 +11,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TableLayout;
@@ -298,15 +299,13 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     }
 
     private void TileSelected(View v,Boolean AiPass){
-        if(AiPass){ PlyrTurn = !PlyrTurn; }
-        if(!PlyrTurn){return;}
-            //avoid select IMD after moving a piece and is AI turn.. hander delay in AdvancedTurn
-        if(AiPass){ PlyrTurn = !PlyrTurn; }
+        boolean flip=false;
+
+        if (AiPass && !PlyrTurn) { PlyrTurn = !PlyrTurn; flip=true; }
+        if(!PlyrTurn){return;} //avoid select IMD after moving a piece and is AI turn.. hander delay in AdvancedTurn
+        PlyrTurn = flip ? !PlyrTurn : PlyrTurn;
 
         TextView tv = (TextView) v;
-
-        //Make selected T1 lose alpha??
-
         if(TileOne != null){
 
             if(UseIcons){
@@ -333,7 +332,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\n("+TileOne[1]+") Invalid move!",Toast.LENGTH_SHORT).show();
                 }
             }catch (Exception e){
-                System.err.println("ReflectionInvoke Err: "+e);
+                Log.e("TAG","Line 335 (reflect): "+e+"\n  T1:"+Arrays.asList(TileOne)+"|T2:"+Arrays.asList(TileTwo));
+                //todo reflection err when ai is first ??
+
 
                 //Appears to occur from clicking too fast..?
 
@@ -643,10 +644,11 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                         tv2 = (Objects.equals(((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), o[0].toString())) ? tv : tv2;
                     }
                     TextView Tv1 = tv1, Tv2 = tv2;
+
                     runOnUiThread(() -> {
-                        TileSelected(Tv1);
+                        TileSelected(Tv1,true);
                         new Handler().postDelayed(() -> {
-                            TileSelected(Tv2);
+                            TileSelected(Tv2,true);
                         }, (CultivateAI) ? 600 : 1800);
                     });
                 }
