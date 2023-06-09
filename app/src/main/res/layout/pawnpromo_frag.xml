@@ -16,12 +16,12 @@
         android:layout_marginTop="50dp"
         android:layout_marginEnd="80dp"
         android:gravity="center"
-        android:maxLines="2"
+        android:maxLines="3"
         android:shadowColor="#005555"
         android:shadowDx="10"
         android:shadowDy="10"
         android:shadowRadius="100"
-        android:text="@string/app_name"
+        android:text="Pick a piece\nPromote your pawn"
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="40dp"
@@ -31,52 +31,60 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <TextView
         android:id="@+id/PawnPromoRook"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="50dp"
+        android:layout_marginBottom="40dp"
+        android:contentDescription="promote pawn to rook"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/PawnPromoTitle"
-        android:contentDescription="promote pawn to rook" />
+        app:layout_constraintBottom_toTopOf="@+id/PawnPromoKnight"/>
 
-    <ImageView
+    <TextView
         android:id="@+id/PawnPromoKnight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="50dp"
+        android:layout_marginBottom="40dp"
+        android:contentDescription="promote pawn to knight"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/PawnPromoRook"
-        android:contentDescription="promote pawn to knight" />
+        app:layout_constraintBottom_toTopOf="@+id/PawnPromoBishop"/>
 
-    <ImageView
+    <TextView
         android:id="@+id/PawnPromoBishop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="50dp"
+        android:layout_marginBottom="40dp"
+        android:contentDescription="promote pawn to Bishop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/PawnPromoKnight"
-        android:contentDescription="promote pawn to Bishop" />
+        app:layout_constraintBottom_toTopOf="@+id/PawnPromoQueen"/>
 
-    <ImageView
+    <TextView
         android:id="@+id/PawnPromoQueen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="50dp"
+        android:layout_marginBottom="50dp"
+        android:contentDescription="promote pawn to Queen"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/PawnPromoBishop"
-        android:contentDescription="promote pawn to Queen" />
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

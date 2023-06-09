@@ -16,6 +16,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -26,11 +27,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,6 +77,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         setContentView(R.layout.game);
 
         context = getApplicationContext();
+
+        MsgUsr = Toast.makeText(context,"",Toast.LENGTH_SHORT);
     }
 
     private Object[] PlStats, AiStats; //{TheirColour,IsKingDead?} (Color/int - TV.getCurrCol is int , Boolean)
@@ -128,10 +133,10 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         //Add pieces..
         try {  //join stops curr (calling) thread till the ref/var thread process is complete..
-            th = new Thread(()->{SetupPieces();});
+            th = new Thread(()->{ SetupPieces(); });
             th.start();
             th.join(); //join makes UI thread wait for th thread to die..
-            MainLoop();
+            try{ MainLoop(); } catch (Exception e){ System.err.println("Line 678+ MainLoop\n"+e); }
         } catch (Exception e) { System.err.println("Line 138\n"+e); }
     }
 
@@ -335,7 +340,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
                     //Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nAllowed move!",Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\n("+TileOne[1]+") Invalid move!",Toast.LENGTH_SHORT).show();
+                    MsgUsr.cancel();
+                    MsgUsr = Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\n("+TileOne[1]+") Invalid move!",Toast.LENGTH_SHORT);
+                    MsgUsr.show();
                 }
             }catch (Exception e){
                 System.err.println("ReflectErr (Line 335): "+e);
@@ -367,6 +374,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             }
         }
     }
+
+    Toast MsgUsr = null;
 
     private boolean Pawn(Object[] T1, Object[] T2){
                         //Gets location/ID
@@ -500,7 +509,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
         TextView Tv2 = tv2, Tv1 = tv1;
         runOnUiThread(()->{
-            Toast.makeText(context,T1[0]+" => "+T2[0]+"\n("+T1[1]+")",Toast.LENGTH_SHORT).show();
+            MsgUsr.cancel();
+            MsgUsr = Toast.makeText(context,T1[0]+" => "+T2[0]+"\n("+T1[1]+")",Toast.LENGTH_SHORT);
+            MsgUsr.show();
 
             if (UseIcons){
                 LayerDrawable LD = (LayerDrawable) Tv1.getBackground().getConstantState().newDrawable().mutate();
@@ -670,15 +681,22 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         //MainLoop();
     }
 
+    protected TextView PromoteMe=null;
+
     private void MainLoop(){
 
-        //Testing pawn promo
+        Bundle b = new Bundle(); b.putSerializable("PromoteMe", ((ConcurrentHashMap<String,String>)PromoteMe.getTag()) );
+        b.putBoolean("UI",UseIcons);
+        getSupportFragmentManager().beginTransaction().replace(R.id.GameFragHolder, PawnPromoFrag.class, b).commit();
+        findViewById(R.id.GameFragHolder).bringToFront();
 
         //System.out.println("GMR: "+GameMoveRecord);
 
         //TurnsTillStalemate+=200;
         if( AiStats[1].equals(true) || PlStats[1].equals(true) || TurnsTillStalemate>=200){
-            Toast.makeText(context, (TurnsTillStalemate<200 ? ( (boolean)AiStats[1] ? "Player" : "AI" ) +" Wins!" : "TIE/DRAW!"), Toast.LENGTH_LONG).show();
+            MsgUsr.cancel();
+            MsgUsr = Toast.makeText(context, (TurnsTillStalemate<200 ? ( (boolean)AiStats[1] ? "Player" : "AI" ) +" Wins!" : "TIE/DRAW!"), Toast.LENGTH_LONG);
+            MsgUsr.show();
 
             if(! CultivateAI) {
                 //Write res to WLR file..
@@ -809,7 +827,17 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        //super.onBackPressed();
+
+        for(Fragment Frag : getSupportFragmentManager().getFragments()) {
+            //System.out.println("NumOfFrags: "+getSupportFragmentManager().getFragments().size()+" | Frag up: "+Frag.isAdded()+" | ID:"+Frag.getId());
+            if (Frag.isVisible()){
+                //System.out.println("REMOVING FRAG");
+                getSupportFragmentManager().beginTransaction().remove(Frag).commit();
+                return;
+            }
+        }
+
         startActivity(new Intent(this,Main.class));
     }
 }
