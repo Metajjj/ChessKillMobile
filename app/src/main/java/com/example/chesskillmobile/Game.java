@@ -672,6 +672,8 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
     private void MainLoop(){
 
+        //Testing pawn promo
+
         //System.out.println("GMR: "+GameMoveRecord);
 
         //TurnsTillStalemate+=200;
