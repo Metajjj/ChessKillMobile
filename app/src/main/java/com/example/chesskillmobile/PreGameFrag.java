@@ -98,7 +98,7 @@ public class PreGameFrag extends DialogFragment {
                 //System.out.println(MessageFormat.format( "ATC : editable {0}" ,editable.toString() ));
                 String s = editable.toString();
                 try {
-                    ((TextView)getActivity().findViewById(R.id.PregameBB)).setTextColor( Color.parseColor(s) );
+                    ((TextView)getActivity().findViewById(R.id.PregameBB)).setTextColor( Color.parseColor("#"+s) );
                     BBsafe=true;
                 }catch (Exception e){ BBsafe=false;
                     //System.out.println("s:"+s+" e:"+e);
@@ -127,8 +127,9 @@ public class PreGameFrag extends DialogFragment {
             public void afterTextChanged(Editable editable) {
                 //System.out.println(MessageFormat.format( "ATC : editable {0}" ,editable.toString() ));
                 String s = editable.toString();
+
                 try {
-                    ((TextView)getActivity().findViewById(R.id.PregameWB)).setTextColor( Color.parseColor(s) );
+                    ((TextView)getActivity().findViewById(R.id.PregameWB)).setTextColor( Color.parseColor("#"+s) );
                     WBsafe=true;
                 }catch (Exception e){ WBsafe=false;
                     //System.out.println("s:"+s+" e:"+e);

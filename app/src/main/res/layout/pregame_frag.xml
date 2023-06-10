@@ -9,7 +9,6 @@
 
     <TextView
         android:id="@+id/PregameTitle"
-
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="80dp"
@@ -77,7 +76,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginTop="50dp"
         android:background="#555555"
-        android:digits="0123456789ABCDEF#"
+        android:digits="0123456789abcdefABCDEF"
         android:gravity="center"
         android:maxLength="7"
         android:maxLines="1"
@@ -148,7 +147,7 @@
         android:background="#666"
         android:padding="5dp"
         android:gravity="center"
-        android:text="Edit the hex codes to change col!\n(#RRGGBB) 0-9-A-F(0-16)"
+        android:text="Edit the hex codes to change col!\n#(RRGGBB) 0-9-A-F(0-16)"
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="25dp"
@@ -158,6 +157,7 @@
         app:layout_constraintTop_toBottomOf="@+id/PregameWB" />
 
     <EditText
+        android:digits="0123456789abcdefABCDEF"
         android:id="@+id/PregameBBcol"
         android:layout_width="140dp"
         android:layout_height="124dp"
