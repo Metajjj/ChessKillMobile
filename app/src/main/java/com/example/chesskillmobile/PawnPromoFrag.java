@@ -55,7 +55,9 @@ public class PawnPromoFrag extends DialogFragment {
         return LD;
     }
 
-    private ConcurrentHashMap<String,String> PmTag=null; private TextView PromoteMe=null; Boolean UseIcons=false;
+    private ConcurrentHashMap<String,String> PmTag=null;
+    private TextView PromoteMe=null;
+    Boolean UseIcons=false;
 
     private ArrayList<String> LRP;
 
@@ -63,18 +65,20 @@ public class PawnPromoFrag extends DialogFragment {
     public void onStart() {
         super.onStart();
 
+        LRP = new ArrayList<>(Arrays.asList(getString(R.string.Rook), getString(R.string.Knight), getString(R.string.Bishop), getString(R.string.King), getString(R.string.Queen), getString(R.string.Bishop), getString(R.string.Knight), getString(R.string.Rook))); LRP.add(0,""); LRP.add(1,getString(R.string.Pawn));
+
         for(int i = 0; i<((TableLayout)getActivity().findViewById(R.id.GameTable)).getChildCount(); i++){
             TableRow tr = (TableRow) ((TableLayout)getActivity().findViewById(R.id.GameTable)).getChildAt(i);
             for(int j=0;j<tr.getChildCount();j++){
                 TextView tv = (TextView) tr.getChildAt(j);
 
+                System.out.println(((ConcurrentHashMap<String, String>) tv.getTag()).get("ID")+":"+PmTag.get("ID"));
+
                 if(Objects.equals(((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), PmTag.get("ID"))){ PromoteMe = tv; break; }
             }
         }
 
-        //((TextView)getActivity().findViewById(R.id.PawnPromoTitle)).append(" ("+((ConcurrentHashMap<String,String>)PromoteMe.getTag()).get("ID")+")");
-
-        LRP = new ArrayList<>(Arrays.asList(getString(R.string.Rook), getString(R.string.Knight), getString(R.string.Bishop), getString(R.string.King), getString(R.string.Queen), getString(R.string.Bishop), getString(R.string.Knight), getString(R.string.Rook))); LRP.add(0,""); LRP.add(1,getString(R.string.Pawn));
+        ((TextView)getActivity().findViewById(R.id.PawnPromoTitle)).append(" ("+PmTag.get("ID")+")");
 
         //Setup drawables.. //Setup img srcs
         if(UseIcons) {
@@ -90,6 +94,27 @@ public class PawnPromoFrag extends DialogFragment {
         }
 
         //Setup onclicks..
+        SetupOnClicks();
+
+        //AI selecting
+        if(this.getArguments().getString("ID").equals("AI")){
+            //ArrayList<Object> o = (ArrayList<Object>) this.getArguments().getSerializable("AiStuff");
+            //System.out.println(o+" : "+o.get(0)+"|"+o.get(1));
+            switch ((int) Math.floor(Math.random() * 4)){
+                case 0: getActivity().findViewById(R.id.PawnPromoRook).performClick(); System.out.println("0 random");
+                    break;
+                case 1: getActivity().findViewById(R.id.PawnPromoKnight).performClick(); System.out.println("1 random");
+                    break;
+                case 2: getActivity().findViewById(R.id.PawnPromoBishop).performClick(); System.out.println("2 random");
+                    break;
+                case 3: getActivity().findViewById(R.id.PawnPromoQueen).performClick(); System.out.println("3 random");
+                    break;
+            }
+            getActivity().findViewById(R.id.PawnPromoBg).performClick();
+        }
+    }
+
+    private void SetupOnClicks(){
         getActivity().findViewById(R.id.PawnPromoBg).setOnClickListener(null);
         getActivity().findViewById(R.id.PawnPromoTitle).setOnClickListener(null);
 
@@ -112,11 +137,17 @@ public class PawnPromoFrag extends DialogFragment {
             PromotePawn(getString(R.string.Queen), (TextView) view);
             getActivity().findViewById(R.id.PawnPromoBg).setOnClickListener(v->{CloseFrag();});
         }));
-
     }
 
-    protected void PromotePawn(String NewPiece, TextView tv){
+    public void PromotePawn(String NewPiece, TextView tv){
         Toast.makeText(context, getString(R.string.Pawn)+" promoted to: "+NewPiece, Toast.LENGTH_SHORT).show();
+
+            //If AI takes pawn during its turn when plyr is busy selecting.. dont let promotion overwrite tile
+        if(!Objects.equals(PmTag.get("Piece"), "Pawn")){
+            Toast.makeText(context, "Click background to return!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         PmTag.put("Piece",NewPiece);
 
         if (UseIcons){

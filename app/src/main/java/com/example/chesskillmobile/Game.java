@@ -365,6 +365,12 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
 
             TileOne = new Object[]{((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), ((ConcurrentHashMap<String, String>) tv.getTag()).get("Piece"), tv.getCurrentTextColor()};
 
+            //Ai can use tileselected.. make sure player hasnt picked enemy piece..
+            /*if(PlyrTurn && TileOne[2].equals(AiStats[0])){
+                MsgUsr.cancel(); MsgUsr=Toast.makeText(context,"No using enemy pieces!",Toast.LENGTH_SHORT); MsgUsr.show();
+                TileOne=null; return;
+            }*/
+
             //Toast.makeText(this,TileOne[0]+" ("+TileOne[1]+") selected!",Toast.LENGTH_SHORT).show();
                 //Visibly shows tile selected
             c=tv;
@@ -625,7 +631,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             }
         }
 
-        System.out.println("PM:\n"+PossibleMoves);
+        //System.out.println("PM:\n"+PossibleMoves);
 
         String ChosenMove = "";
         for (boolean MoveAllowed = false; !MoveAllowed; PossibleMoves = PossibleMoves.replace(ChosenMove, "")) {
@@ -675,7 +681,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     }
 
     private void AdvanceTurn() {
-        //todo Check if pawn reaches end.. give option to promote piece via frag
         TurnsTillStalemate++;
         PlyrTurn = !PlyrTurn;
 
@@ -687,19 +692,23 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 case "A":
                     PawnCol = (int) PlStats[0];
                 case "H":
-                    PawnCol = (PawnCol==0) ? (int) AiStats[0] : PawnCol; //todo.. no diagnoal for ai??
+                    PawnCol = (PawnCol==0) ? (int) AiStats[0] : PawnCol;
                     if (Objects.equals(tag.get("Piece"), getString(R.string.Pawn))) {
                         Bundle b = new Bundle();
                         b.putSerializable("PromoteMe", tag);
                         b.putBoolean("UI", UseIcons); b.putInt("PawnCol",PawnCol);
                         if(PawnCol==(int)AiStats[0]){
-                            new PawnPromoFrag().PromotePawn(
-                                    LastRowPieces.get( (int) Math.floor( Math.random() * LastRowPieces.size() ) )
-                                    , tv );
-                            //(String NewPiece, TextView tv)
-                            //todo not attached to context err
+                            b.putString("ID","AI");
+                            Toast.makeText(context,"AI is upgrading pawn!",Toast.LENGTH_SHORT).show();
+                            runOnUiThread(() -> {
+                                if (getSupportFragmentManager().getFragments().size() == 0) {
+                                    findViewById(R.id.GameFragHolder).bringToFront();
+                                    getSupportFragmentManager().beginTransaction().replace(R.id.GameFragHolder, PawnPromoFrag.class, b).commit();
+                                }
+                            });
                         }
                         else {
+                            b.putString("ID","");
                             runOnUiThread(() -> {
                                 if (getSupportFragmentManager().getFragments().size() == 0) {
                                     findViewById(R.id.GameFragHolder).bringToFront();
