@@ -2,6 +2,8 @@ package com.example.chesskillmobile;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
@@ -55,7 +57,7 @@ public class PawnPromoFrag extends DialogFragment {
 
     private ConcurrentHashMap<String,String> PmTag=null; private TextView PromoteMe=null; Boolean UseIcons=false;
 
-    ArrayList<String> LRP;
+    private ArrayList<String> LRP;
 
     @Override
     public void onStart() {
@@ -88,34 +90,47 @@ public class PawnPromoFrag extends DialogFragment {
         }
 
         //Setup onclicks..
-        getActivity().findViewById(R.id.PawnPromoBg).setOnClickListener(v->{CloseFrag();});
+        getActivity().findViewById(R.id.PawnPromoBg).setOnClickListener(null);
         getActivity().findViewById(R.id.PawnPromoTitle).setOnClickListener(null);
 
         getActivity().findViewById(R.id.PawnPromoRook).setOnClickListener((view -> {
             PromotePawn(getString(R.string.Rook), (TextView) view);
+            getActivity().findViewById(R.id.PawnPromoBg).setOnClickListener(v->{CloseFrag();});
         }));
 
         getActivity().findViewById(R.id.PawnPromoKnight).setOnClickListener((view -> {
             PromotePawn(getString(R.string.Knight), (TextView) view);
+            getActivity().findViewById(R.id.PawnPromoBg).setOnClickListener(v->{CloseFrag();});
         }));
 
         getActivity().findViewById(R.id.PawnPromoBishop).setOnClickListener((view -> {
             PromotePawn(getString(R.string.Bishop), (TextView) view);
+            getActivity().findViewById(R.id.PawnPromoBg).setOnClickListener(v->{CloseFrag();});
         }));
 
         getActivity().findViewById(R.id.PawnPromoQueen).setOnClickListener((view -> {
             PromotePawn(getString(R.string.Queen), (TextView) view);
+            getActivity().findViewById(R.id.PawnPromoBg).setOnClickListener(v->{CloseFrag();});
         }));
 
     }
 
-    private void PromotePawn(String NewPiece, TextView tv){
+    protected void PromotePawn(String NewPiece, TextView tv){
         Toast.makeText(context, getString(R.string.Pawn)+" promoted to: "+NewPiece, Toast.LENGTH_SHORT).show();
         PmTag.put("Piece",NewPiece);
 
         if (UseIcons){
             LayerDrawable LD = (LayerDrawable) tv.getBackground().getConstantState().newDrawable().mutate();
             ((ColorDrawable)LD.getDrawable(0)).setColor(Integer.parseInt(PmTag.get("OriginalBg")));
+
+            switch (PmTag.get("ID").substring(0,1)){
+                case "A":
+                case "H":
+                    ((BitmapDrawable)LD.getDrawable(LRP.indexOf(NewPiece))).setColorFilter(this.getArguments().getInt("PawnCol"), PorterDuff.Mode.SRC_IN);
+
+                default:
+            }
+
             PromoteMe.setBackground(LD);
         }else{
             PromoteMe.setText(tv.getText());

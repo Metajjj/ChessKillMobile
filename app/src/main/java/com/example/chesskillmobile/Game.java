@@ -27,6 +27,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import java.io.BufferedReader;
@@ -336,8 +337,13 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 //Make sure isnt targeting own piece.. then check if can move to tileTwo (method via reflection string)
             try {
                 if (! TileOne[2].equals(TileTwo[2]) && (boolean) this.getClass().getDeclaredMethod(TileOne[1]+"", Object[].class, Object[].class).invoke(this, TileOne, TileTwo)) {
-                    MovePiece(TileOne,TileTwo);
+                    Thread th = new Thread(()->{
+                        MovePiece(TileOne,TileTwo);
+                    });
+                    //MovePiece(TileOne,TileTwo);
+                    th.start(); th.join();
 
+                    AdvanceTurn();
                     //Toast.makeText(this,TileOne[0]+"=>"+TileTwo[0]+"\nAllowed move!",Toast.LENGTH_SHORT).show();
                 } else {
                     MsgUsr.cancel();
@@ -345,7 +351,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                     MsgUsr.show();
                 }
             }catch (Exception e){
-                System.err.println("ReflectErr (Line 335): "+e);
+                System.err.println("Err (Line 335): T1:"+Arrays.asList(TileOne)+" T2:"+Arrays.asList(TileTwo)+"\n"+e);
 
                 Toast.makeText(this, "Srs err, reflection err\nAborting game..", Toast.LENGTH_LONG).show();
                 new Handler().postDelayed(()->{ startActivity(new Intent(this,Main.class)); },2000);
@@ -408,7 +414,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                 //Make sure is distance of 1 away wherever the piece is
             } else return Math.abs(L1[0] - L2[0]) == 1;
             //Check if moving diagonal (1 letter, 1 number & enemy piece)
-        } else return Math.abs(L1[1] - L2[1]) == 1 && Math.abs(L1[0] - L2[0]) == 1 && T2[2].equals(AiStats[0]);
+        } else {
+            return Math.abs(L1[1] - L2[1]) == 1 && Math.abs(L1[0] - L2[0]) == 1 && ( T2[2].equals(AiStats[0]) || T2[2].equals(PlStats[0]) );
+        }
     }
     private boolean Rook(Object[] T1, Object[] T2){
         char[] L1 = T1[0].toString().toCharArray(), L2 = T2[0].toString().toCharArray();
@@ -540,9 +548,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         }
 
         GameMoveRecord += ((ConcurrentHashMap<String, String>) tv1.getTag()).get("ID")+((ConcurrentHashMap<String, String>) tv2.getTag()).get("ID");
-
-
-        AdvanceTurn();
     }
 
     private Integer TurnsTillStalemate=0; private String GameMoveRecord=""; private boolean PlyrTurn=true;
@@ -620,7 +625,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             }
         }
 
-        //System.out.println(PossibleMoves);
+        System.out.println("PM:\n"+PossibleMoves);
 
         String ChosenMove = "";
         for (boolean MoveAllowed = false; !MoveAllowed; PossibleMoves = PossibleMoves.replace(ChosenMove, "")) {
@@ -669,26 +674,55 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         }
     }
 
-    private void AdvanceTurn(){
+    private void AdvanceTurn() {
         //todo Check if pawn reaches end.. give option to promote piece via frag
-        TurnsTillStalemate++; PlyrTurn=!PlyrTurn;
+        TurnsTillStalemate++;
+        PlyrTurn = !PlyrTurn;
 
-        new Thread(()->{
-                //Gap between rounds
-            try{ Thread.sleep(600); } catch (Exception e){System.err.println("Line 676\n"+e);}
+        for (TextView tv : RecordOfTiles) {
+            //Pawns only move forward.. check if pawn reaches last row only (will be enemy) A||H - will never be more than 1 pawn at end PER TURN unless refuses to promote..
+            ConcurrentHashMap<String, String> tag = ((ConcurrentHashMap<String, String>) tv.getTag());
+            int PawnCol=0;
+            switch (tag.get("ID").substring(0, 1)) {
+                case "A":
+                    PawnCol = (int) PlStats[0];
+                case "H":
+                    PawnCol = (PawnCol==0) ? (int) AiStats[0] : PawnCol; //todo.. no diagnoal for ai??
+                    if (Objects.equals(tag.get("Piece"), getString(R.string.Pawn))) {
+                        Bundle b = new Bundle();
+                        b.putSerializable("PromoteMe", tag);
+                        b.putBoolean("UI", UseIcons); b.putInt("PawnCol",PawnCol);
+                        if(PawnCol==(int)AiStats[0]){
+                            new PawnPromoFrag().PromotePawn(
+                                    LastRowPieces.get( (int) Math.floor( Math.random() * LastRowPieces.size() ) )
+                                    , tv );
+                            //(String NewPiece, TextView tv)
+                            //todo not attached to context err
+                        }
+                        else {
+                            runOnUiThread(() -> {
+                                if (getSupportFragmentManager().getFragments().size() == 0) {
+                                    findViewById(R.id.GameFragHolder).bringToFront();
+                                    getSupportFragmentManager().beginTransaction().replace(R.id.GameFragHolder, PawnPromoFrag.class, b).commit();
+                                }
+                            });
+                        }
+                            //Frag disappears when ai plays??
+                         System.out.println(getSupportFragmentManager().getFragments().size()); //size is 0..then added then 1
+                    }
+                    break;
+                default:
+            }
+        }
+
+        new Thread(() -> {
+            //Gap between rounds
+            try { Thread.sleep(600); } catch (Exception e) { System.err.println("Line 676\n" + e); }
             runOnUiThread(this::MainLoop);
         }).start();
-        //MainLoop();
     }
 
-    protected TextView PromoteMe=null;
-
     private void MainLoop(){
-
-        Bundle b = new Bundle(); b.putSerializable("PromoteMe", ((ConcurrentHashMap<String,String>)PromoteMe.getTag()) );
-        b.putBoolean("UI",UseIcons);
-        getSupportFragmentManager().beginTransaction().replace(R.id.GameFragHolder, PawnPromoFrag.class, b).commit();
-        findViewById(R.id.GameFragHolder).bringToFront();
 
         //System.out.println("GMR: "+GameMoveRecord);
 
