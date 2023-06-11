@@ -72,7 +72,7 @@ public class PawnPromoFrag extends DialogFragment {
             for(int j=0;j<tr.getChildCount();j++){
                 TextView tv = (TextView) tr.getChildAt(j);
 
-                System.out.println(((ConcurrentHashMap<String, String>) tv.getTag()).get("ID")+":"+PmTag.get("ID"));
+                //System.out.println(((ConcurrentHashMap<String, String>) tv.getTag()).get("ID")+":"+PmTag.get("ID"));
 
                 if(Objects.equals(((ConcurrentHashMap<String, String>) tv.getTag()).get("ID"), PmTag.get("ID"))){ PromoteMe = tv; break; }
             }

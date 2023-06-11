@@ -673,7 +673,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                         TileSelected(Tv1,true);
                         new Handler().postDelayed(() -> {
                             TileSelected(Tv2,true);
-                        }, (CultivateAI) ? 600 : 1800);
+                        }, (CultivateAI) ? 20 : 1800);
                     });
                 }
             }
@@ -717,7 +717,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
                             });
                         }
                             //Frag disappears when ai plays??
-                         System.out.println(getSupportFragmentManager().getFragments().size()); //size is 0..then added then 1
+                         //System.out.println(getSupportFragmentManager().getFragments().size()); //size is 0..then added then 1
                     }
                     break;
                 default:
@@ -871,15 +871,6 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
     @Override
     public void onBackPressed() {
         //super.onBackPressed();
-
-        for(Fragment Frag : getSupportFragmentManager().getFragments()) {
-            //System.out.println("NumOfFrags: "+getSupportFragmentManager().getFragments().size()+" | Frag up: "+Frag.isAdded()+" | ID:"+Frag.getId());
-            if (Frag.isVisible()){
-                //System.out.println("REMOVING FRAG");
-                getSupportFragmentManager().beginTransaction().remove(Frag).commit();
-                return;
-            }
-        }
 
         startActivity(new Intent(this,Main.class));
     }
