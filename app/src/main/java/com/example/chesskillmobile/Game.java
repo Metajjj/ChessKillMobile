@@ -111,6 +111,7 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
         TeamSelected();
     }
 
+        //TODO sort detailed view for when pieces move!
     private boolean DetailedView=true, UseIcons=false, CultivateAI=false;
 
     private void IsMainThread(){ System.out.println( Thread.currentThread() == Looper.getMainLooper().getThread() ); }
@@ -798,10 +799,9 @@ public class Game  extends AppCompatActivity implements PreGameFrag.OnCallbackRe
             }
         }
     }
-    private boolean InteractBrainFile(String IOmode, @Nullable String Movement){
+    private boolean InteractBrainFile( String IOmode, @Nullable String Movement ){
         if(IOmode.equals(getString(R.string.Read))){
             ArrayList<String> FailedMoves = new ArrayList<>();
-
             try{
                 BufferedReader bfr = new BufferedReader(new FileReader(new File(getFilesDir(),getString(R.string.AIBrain))));
                 String l = bfr.readLine();

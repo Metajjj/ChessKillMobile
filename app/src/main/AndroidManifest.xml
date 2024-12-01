@@ -13,6 +13,11 @@
         android:theme="@style/Theme.ChessKillMobile"
         tools:targetApi="31" >
 
+        <!-- AdMob stuff -->
+
+        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-6405116378246242~1921153346"/>
+        <!-- ca-app-pub-6405116378246242~1921153346 is ID -->
+
         <activity android:name=".Main" android:screenOrientation="portrait" android:exported="true">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER"/>

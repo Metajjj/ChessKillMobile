@@ -76,7 +76,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginTop="50dp"
         android:background="#555555"
-        android:digits="0123456789abcdefABCDEF"
+        android:digits="0123456789abcdefABCDEF#"
         android:gravity="center"
         android:maxLength="7"
         android:maxLines="1"
@@ -157,7 +157,7 @@
         app:layout_constraintTop_toBottomOf="@+id/PregameWB" />
 
     <EditText
-        android:digits="0123456789abcdefABCDEF"
+        android:digits="0123456789abcdefABCDEF#"
         android:id="@+id/PregameBBcol"
         android:layout_width="140dp"
         android:layout_height="124dp"

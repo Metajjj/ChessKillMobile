@@ -98,7 +98,9 @@ public class PreGameFrag extends DialogFragment {
                 //System.out.println(MessageFormat.format( "ATC : editable {0}" ,editable.toString() ));
                 String s = editable.toString();
                 try {
-                    ((TextView)getActivity().findViewById(R.id.PregameBB)).setTextColor( Color.parseColor("#"+s) );
+                    ((TextView)getActivity().findViewById(R.id.PregameBB)).setTextColor( Color.parseColor(
+                            ( s.startsWith("#") ? s : "#"+s )
+                    ) );
                     BBsafe=true;
                 }catch (Exception e){ BBsafe=false;
                     //System.out.println("s:"+s+" e:"+e);
@@ -129,7 +131,9 @@ public class PreGameFrag extends DialogFragment {
                 String s = editable.toString();
 
                 try {
-                    ((TextView)getActivity().findViewById(R.id.PregameWB)).setTextColor( Color.parseColor("#"+s) );
+                    ((TextView)getActivity().findViewById(R.id.PregameWB)).setTextColor( Color.parseColor(
+                            ( s.startsWith("#") ? s : "#"+s )
+                    ) );
                     WBsafe=true;
                 }catch (Exception e){ WBsafe=false;
                     //System.out.println("s:"+s+" e:"+e);
@@ -143,6 +147,9 @@ public class PreGameFrag extends DialogFragment {
         ((TextView)getActivity().findViewById(R.id.PregameBB)).setTextColor( Color.parseColor(
                 ((EditText)getActivity().findViewById(R.id.PregameBBcol)).getText() +""
         ));
+
+        //TODO temp Disable cultivateAI
+        ((CheckBox)getActivity().findViewById(R.id.PregameCheckBox3)).setOnClickListener(null);
     }
 
     private Boolean WBsafe=true, BBsafe=true;

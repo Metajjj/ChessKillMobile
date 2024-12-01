@@ -2,17 +2,37 @@ package com.example.chesskillmobile;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Environment;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdLoader;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MediaContent;
+import com.google.android.gms.ads.MuteThisAdListener;
+import com.google.android.gms.ads.MuteThisAdReason;
+import com.google.android.gms.ads.OnPaidEventListener;
+import com.google.android.gms.ads.ResponseInfo;
+import com.google.android.gms.ads.VideoOptions;
+import com.google.android.gms.ads.nativead.NativeAd;
+import com.google.android.gms.ads.nativead.NativeAdOptions;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -50,6 +70,24 @@ public class Main extends AppCompatActivity {
         context = getApplicationContext();
 
         SetupFiles();
+
+
+        //TODO Setup Ads ?? admob
+        /*
+        ConstraintLayout CL = findViewById(R.id.MainAdContainer); CL.removeAllViews();
+
+        AdView Ad = new AdView(this); Ad.setAdUnitId("ca-app-pub-3940256099942544/9214589741"); Ad.setAdSize(AdSize.BANNER);
+        Ad.setBackgroundColor(Color.parseColor("#666666"));
+        CL.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        CL.addView(Ad, new ConstraintLayout.LayoutParams(CL.getWidth(),CL.getHeight()));
+
+        Ad.loadAd(new AdRequest.Builder().build());*/
+
+        AdView ad = findViewById(R.id.MainAdView);
+        //ad.setAdSize(AdSize.BANNER);
+
+        AdRequest AR = new AdRequest.Builder().build();
+        ad.loadAd(AR);
     }
 
     private void SetupFiles(){
